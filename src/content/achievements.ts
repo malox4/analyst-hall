@@ -1,0 +1,17 @@
+import type { Achievement } from "@/types/content";
+
+export const ACHIEVEMENTS: Achievement[] = [
+  { id: "first-step", title: "Первый след", description: "Завершите любой модуль.", icon: "footprints", xp: 25 },
+  { id: "intern-seal", title: "Печать Intern", description: "Пройдите все уровни Intern.", icon: "sprout", xp: 80 },
+  { id: "junior-seal", title: "Печать Junior", description: "Закройте весь Junior-путь.", icon: "compass", xp: 100 },
+  { id: "middle-seal", title: "Печать Middle", description: "Станьте самостоятельным Middle.", icon: "hexagon", xp: 140 },
+  { id: "senior-seal", title: "Печать Senior", description: "Пройдите Senior до конца.", icon: "crown", xp: 200 },
+  { id: "quiz-ace", title: "Безупречный квиз", description: "Наберите 100% в любом тесте.", icon: "sparkles", xp: 40 },
+  { id: "practice-hand", title: "Рука практика", description: "Сдайте 8 практических работ.", icon: "pen-line", xp: 60 },
+  { id: "interview-ready", title: "Голос на собесе", description: "Разберите 20 вопросов интервью.", icon: "mic", xp: 50 },
+  { id: "exam-pass", title: "Симуляция пройдена", description: "Сдайте финальный экзамен на 70%+.", icon: "scroll", xp: 120 },
+  { id: "exam-master", title: "Мастер симуляции", description: "Экзамен на 90% и выше.", icon: "gem", xp: 180 },
+  { id: "xp-500", title: "Путь открыт", description: "Наберите 500 XP.", icon: "flame", xp: 30 },
+  { id: "xp-1500", title: "Легенда зала", description: "Наберите 1500 XP.", icon: "trophy", xp: 80 },
+  { id: "path-complete", title: "Полный путь", description: "Завершите все модули академии.", icon: "orbit", xp: 300 },
+];

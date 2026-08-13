@@ -1,0 +1,131 @@
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowRight, Compass, Lock, Sparkles, Unlock } from "lucide-react";
+import { CURRICULUM } from "@/content/curriculum";
+import { PageMotion } from "@/components/ui/PageMotion";
+import { Pill } from "@/components/ui/Pill";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import { gradeProgress, overallProgress, useProgress } from "@/stores/progressStore";
+import { PathMap } from "@/components/academy/PathMap";
+
+export function HomePage() {
+  const name = useProgress((s) => s.learnerName);
+  const track = useProgress((s) => s.track);
+  const setTrack = useProgress((s) => s.setTrack);
+  const setName = useProgress((s) => s.setName);
+  const xp = useProgress((s) => s.xp);
+  const overall = overallProgress();
+
+  return (
+    <PageMotion>
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="max-w-2xl">
+          <Pill>BA · SA · путь от Intern до Senior</Pill>
+          <h1 className="font-display mt-4 text-4xl leading-[1.1] text-paper md:text-6xl">
+            Malo Academy
+          </h1>
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-muted md:text-lg">
+            Премиальная локальная школа аналитика. Теория без воды, схемы, практика и собеседование —
+            с прогрессом, который живёт только у вас в браузере.
+          </p>
+        </div>
+        <div className="glass w-full max-w-sm rounded-3xl p-5">
+          <label className="text-[11px] uppercase tracking-[0.18em] text-muted">Ваше имя в зале</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Как к вам обращаться"
+            className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-lg outline-none placeholder:text-muted/50"
+          />
+          <div className="mt-4 flex items-center justify-between text-sm">
+            <span className="text-muted">{xp} XP</span>
+            <span className="text-gold">{overall}% пути</span>
+          </div>
+          <ProgressBar value={overall} className="mt-2" />
+        </div>
+      </div>
+
+      <div className="mt-8 flex flex-wrap items-center gap-3">
+        <button
+          onClick={() => setTrack("linear")}
+          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
+            track === "linear"
+              ? "border-gold/40 bg-gold/15 text-gold-2"
+              : "border-white/10 text-muted hover:text-paper"
+          }`}
+        >
+          <Lock size={14} /> Линейный путь
+        </button>
+        <button
+          onClick={() => setTrack("free")}
+          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition ${
+            track === "free"
+              ? "border-mint/40 bg-mint/15 text-mint"
+              : "border-white/10 text-muted hover:text-paper"
+          }`}
+        >
+          <Unlock size={14} /> Свободное изучение
+        </button>
+        <span className="text-xs text-muted">
+          {track === "linear" ? "Открывается следующий модуль после закрытия текущего." : "Любой модуль доступен сразу."}
+        </span>
+      </div>
+
+      <PathMap />
+
+      <div className="mt-10 grid gap-4 md:grid-cols-2">
+        {CURRICULUM.map((g, i) => {
+          const p = gradeProgress(i);
+          return (
+            <motion.div
+              key={g.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 * i }}
+            >
+              <Link
+                to={`/grade/${g.id}`}
+                className="glass group block rounded-3xl p-6 transition hover:border-gold/30"
+                style={{ boxShadow: `0 0 48px ${g.glow}` }}
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-[11px] uppercase tracking-[0.22em] text-muted">Грейд {g.roman}</div>
+                    <h2 className="font-display mt-1 text-3xl" style={{ color: g.color }}>
+                      {g.title}
+                    </h2>
+                  </div>
+                  <ArrowRight className="text-muted transition group-hover:translate-x-1 group-hover:text-gold" size={18} />
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-muted">{g.tagline}</p>
+                <div className="mt-5 flex items-center justify-between text-xs text-muted">
+                  <span>{g.levels.length} уровня · {g.levels.flatMap((l) => l.moduleIds).length} модулей</span>
+                  <span style={{ color: g.color }}>{p}%</span>
+                </div>
+                <ProgressBar value={p} className="mt-2" />
+              </Link>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <Link to="/interview" className="glass rounded-3xl p-5 transition hover:border-gold/30">
+          <Compass className="text-gold" size={18} />
+          <div className="font-display mt-3 text-xl">Собеседование</div>
+          <p className="mt-2 text-sm text-muted">Типичные вопросы и сильные ответы — без зубрёжки определений.</p>
+        </Link>
+        <Link to="/exam" className="glass rounded-3xl p-5 transition hover:border-gold/30">
+          <Sparkles className="text-violet" size={18} />
+          <div className="font-display mt-3 text-xl">Финальная симуляция</div>
+          <p className="mt-2 text-sm text-muted">Большой ситуационный экзамен: думайте, а не угадывайте термины.</p>
+        </Link>
+        <Link to="/achievements" className="glass rounded-3xl p-5 transition hover:border-gold/30">
+          <Sparkles className="text-mint" size={18} />
+          <div className="font-display mt-3 text-xl">Печати и бейджи</div>
+          <p className="mt-2 text-sm text-muted">Геймификация без шума: печати грейдов, XP и редкие знаки.</p>
+        </Link>
+      </div>
+    </PageMotion>
+  );
+}

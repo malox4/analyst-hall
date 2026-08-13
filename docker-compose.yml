@@ -1,0 +1,7 @@
+services:
+  academy:
+    build: .
+    image: malo-academy:local
+    ports:
+      - "8080:80"
+    restart: unless-stopped
