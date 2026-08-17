@@ -15,7 +15,12 @@ export type BlockKind =
   | "checklist"
   | "template"
   | "case"
-  | "soft";
+  | "soft"
+  | "sort"
+  | "match"
+  | "scene"
+  | "order"
+  | "spot";
 
 export type Grade = {
   id: GradeId;
@@ -178,6 +183,48 @@ export type SoftBlock = {
   phrase: string;
 };
 
+export type SortBlock = {
+  kind: "sort";
+  title: string;
+  prompt: string;
+  buckets: { id: string; title: string }[];
+  items: { id: string; text: string; bucket: string; why: string }[];
+};
+
+export type MatchBlock = {
+  kind: "match";
+  title: string;
+  prompt: string;
+  pairs: { left: string; right: string }[];
+};
+
+export type SceneStep = {
+  from: string;
+  line: string;
+  options: { text: string; good: boolean; why: string }[];
+};
+
+export type SceneBlock = {
+  kind: "scene";
+  title: string;
+  setting: string;
+  steps: SceneStep[];
+};
+
+export type OrderBlock = {
+  kind: "order";
+  title: string;
+  prompt: string;
+  items: { id: string; text: string; pos: number }[];
+};
+
+export type SpotBlock = {
+  kind: "spot";
+  title: string;
+  prompt: string;
+  lines: { id: string; text: string; bad: boolean; why: string }[];
+};
+
 export type ContentBlock =
   | TheoryBlock
   | CalloutBlock
@@ -192,7 +239,38 @@ export type ContentBlock =
   | ChecklistBlock
   | TemplateBlock
   | CaseBlock
-  | SoftBlock;
+  | SoftBlock
+  | SortBlock
+  | MatchBlock
+  | SceneBlock
+  | OrderBlock
+  | SpotBlock;
+
+export const PLAY_KINDS: BlockKind[] = [
+  "sort",
+  "match",
+  "scene",
+  "order",
+  "spot",
+  "case",
+  "quiz",
+  "practice",
+];
+
+export function isPlayBlock(kind: BlockKind) {
+  return PLAY_KINDS.includes(kind);
+}
+
+export type LabMission = {
+  id: string;
+  gradeId: GradeId;
+  title: string;
+  teaser: string;
+  minutes: number;
+  xp: number;
+  setting: string;
+  blocks: ContentBlock[];
+};
 
 export type ModuleContent = ModuleMeta & {
   goals: string[];

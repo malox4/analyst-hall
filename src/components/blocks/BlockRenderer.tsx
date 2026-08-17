@@ -13,6 +13,11 @@ import { ChecklistView } from "./ChecklistView";
 import { TemplateView } from "./TemplateView";
 import { CaseView } from "./CaseView";
 import { SoftView } from "./SoftView";
+import { SortView } from "./SortView";
+import { MatchView } from "./MatchView";
+import { SceneView } from "./SceneView";
+import { OrderView } from "./OrderView";
+import { SpotView } from "./SpotView";
 
 export function BlockRenderer({
   block,
@@ -47,9 +52,19 @@ export function BlockRenderer({
     case "template":
       return <TemplateView block={block} />;
     case "case":
-      return <CaseView block={block} />;
+      return <CaseView block={block} moduleId={module.id} />;
     case "soft":
       return <SoftView block={block} />;
+    case "sort":
+      return <SortView block={block} moduleId={module.id} />;
+    case "match":
+      return <MatchView block={block} moduleId={module.id} />;
+    case "scene":
+      return <SceneView block={block} moduleId={module.id} />;
+    case "order":
+      return <OrderView block={block} moduleId={module.id} />;
+    case "spot":
+      return <SpotView block={block} moduleId={module.id} />;
     default:
       return null;
   }

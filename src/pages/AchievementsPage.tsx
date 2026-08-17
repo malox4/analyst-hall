@@ -1,7 +1,7 @@
 import { PageMotion } from "@/components/ui/PageMotion";
 import { ACHIEVEMENTS } from "@/content/achievements";
 import { useProgress } from "@/stores/progressStore";
-import { Award, Compass, Crown, Flame, Footprints, Gem, Hexagon, Mic, Orbit, PenLine, Scroll, Sparkles, Sprout, Trophy } from "lucide-react";
+import { Award, Briefcase, Calendar, Compass, Crown, Flame, Footprints, Gem, Hexagon, Mic, Moon, Orbit, PenLine, Scroll, Sparkles, Sprout, Swords, Trophy, Zap } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const icons = {
@@ -18,6 +18,11 @@ const icons = {
   flame: Flame,
   trophy: Trophy,
   orbit: Orbit,
+  swords: Swords,
+  briefcase: Briefcase,
+  moon: Moon,
+  calendar: Calendar,
+  zap: Zap,
 };
 
 export function AchievementsPage() {

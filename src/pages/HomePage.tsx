@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Compass, Lock, Sparkles, Unlock } from "lucide-react";
+import { ArrowRight, Compass, Lock, Sparkles, Swords, Unlock } from "lucide-react";
 import { CURRICULUM } from "@/content/curriculum";
 import { PageMotion } from "@/components/ui/PageMotion";
 import { Pill } from "@/components/ui/Pill";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { gradeProgress, overallProgress, useProgress } from "@/stores/progressStore";
+import { gradeProgress, learnerRank, overallProgress, useProgress } from "@/stores/progressStore";
 import { PathMap } from "@/components/academy/PathMap";
 
 export function HomePage() {
@@ -15,6 +15,9 @@ export function HomePage() {
   const setName = useProgress((s) => s.setName);
   const xp = useProgress((s) => s.xp);
   const overall = overallProgress();
+  const streak = useProgress((s) => s.streak) ?? 0;
+  const daily = useProgress((s) => s.daily) ?? { quiz: false, practice: false, drill: false, lab: false, day: "" };
+  const rank = learnerRank(xp);
 
   return (
     <PageMotion>
@@ -25,8 +28,7 @@ export function HomePage() {
             Malo Academy
           </h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-            Премиальная локальная школа аналитика. Теория без воды, схемы, практика и собеседование —
-            с прогрессом, который живёт только у вас в браузере.
+            Не учебник. Сначала игра: сортировки, диалоги, брак в тикете. Текст — вкладка «Разбор», если застряли.
           </p>
         </div>
         <div className="glass w-full max-w-sm rounded-3xl p-5">
@@ -38,7 +40,7 @@ export function HomePage() {
             className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-lg outline-none placeholder:text-muted/50"
           />
           <div className="mt-4 flex items-center justify-between text-sm">
-            <span className="text-muted">{xp} XP</span>
+            <span className="text-muted">{xp} XP · {rank.title}</span>
             <span className="text-gold">{overall}% пути</span>
           </div>
           <ProgressBar value={overall} className="mt-2" />
@@ -70,6 +72,20 @@ export function HomePage() {
           {track === "linear" ? "Открывается следующий модуль после закрытия текущего." : "Любой модуль доступен сразу."}
         </span>
       </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-4">
+        {[
+          { ok: daily.quiz, label: "Квиз дня" },
+          { ok: daily.practice, label: "Практика" },
+          { ok: daily.drill, label: "Мини-игра" },
+          { ok: daily.lab, label: "Смена в зале" },
+        ].map((q) => (
+          <div key={q.label} className={`glass rounded-2xl px-4 py-3 text-sm ${q.ok ? "border-mint/30 text-mint" : "text-muted"}`}>
+            {q.ok ? "✓" : "○"} {q.label}
+          </div>
+        ))}
+      </div>
+      <p className="mt-2 text-xs text-muted">Серия: {streak} дн. Откройте модуль — сразу вкладка «Играть».</p>
 
       <PathMap />
 
@@ -109,7 +125,12 @@ export function HomePage() {
         })}
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Link to="/lab" className="glass rounded-3xl p-5 transition hover:border-gold/30">
+          <Swords className="text-rose" size={18} />
+          <div className="font-display mt-3 text-xl">Зал практики</div>
+          <p className="mt-2 text-sm text-muted">12 миссий без учебника: ночной чат, груминг, go/no-go.</p>
+        </Link>
         <Link to="/interview" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Compass className="text-gold" size={18} />
           <div className="font-display mt-3 text-xl">Собеседование</div>

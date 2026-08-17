@@ -1,9 +1,10 @@
 import { NavLink } from "react-router-dom";
-import { Award, Map, Mic2, ScrollText, UserRound } from "lucide-react";
+import { Award, Map, Mic2, ScrollText, Swords, UserRound } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const links = [
   { to: "/", label: "Путь", icon: Map, end: true },
+  { to: "/lab", label: "Зал", icon: Swords },
   { to: "/interview", label: "Собес", icon: Mic2 },
   { to: "/exam", label: "Экзамен", icon: ScrollText },
   { to: "/achievements", label: "Печати", icon: Award },
@@ -12,7 +13,7 @@ const links = [
 
 export function MobileBar() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/8 bg-[#0d1322]/90 px-2 py-2 backdrop-blur-xl md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/8 bg-[#0d1322]/90 px-1 py-2 backdrop-blur-xl md:hidden">
       <div className="flex justify-around">
         {links.map((l) => (
           <NavLink
@@ -21,7 +22,7 @@ export function MobileBar() {
             end={l.end}
             className={({ isActive }) =>
               cn(
-                "flex flex-col items-center gap-1 rounded-xl px-3 py-1 text-[10px]",
+                "flex flex-col items-center gap-1 rounded-xl px-2 py-1 text-[10px]",
                 isActive ? "text-gold" : "text-muted",
               )
             }
