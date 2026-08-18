@@ -10,6 +10,9 @@ export const WORLD = {
     { id: "af", name: "antifraud", owns: "скор и блок, не создание проводки" },
     { id: "acq", name: "acquiring", owns: "мерчант, реестр, MCC" },
     { id: "erp", name: "1C-bridge", owns: "выгрузка проводок" },
+    { id: "nostro", name: "nostro", owns: "корсчёт, входящие/исходящие IBAN" },
+    { id: "fx", name: "treasury-fx", owns: "курс, спред, позиция по валюте" },
+    { id: "clearing", name: "clearing", owns: "T+1 settle мерчанта, не auth" },
   ],
 };
 

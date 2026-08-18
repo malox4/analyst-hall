@@ -1,7 +1,7 @@
 import { PageMotion } from "@/components/ui/PageMotion";
 import { ACHIEVEMENTS } from "@/content/achievements";
 import { useProgress } from "@/stores/progressStore";
-import { Award, Briefcase, Cable, Calendar, Compass, Crown, Flame, Footprints, Gem, Globe, Hexagon, Mic, Moon, Orbit, PenLine, Radio, Scroll, Shield, Sparkles, Sprout, Swords, Trophy, Unplug, Zap } from "lucide-react";
+import { Award, BookOpen, Briefcase, Cable, Calendar, Compass, Crown, Flame, Footprints, Gem, Globe, Hexagon, Landmark, Mic, Moon, Orbit, PenLine, Radio, Scroll, Shield, Sparkles, Sprout, Swords, Trophy, Unplug, Zap } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const icons = {
@@ -28,6 +28,8 @@ const icons = {
   globe: Globe,
   cable: Cable,
   unplug: Unplug,
+  landmark: Landmark,
+  "book-open": BookOpen,
 };
 
 export function AchievementsPage() {

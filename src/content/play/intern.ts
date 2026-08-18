@@ -209,6 +209,23 @@ export const INTERN_EXTRAS: Record<string, ContentBlock[]> = {
   "intern-2-requirement": [
     {
       kind: "sort",
+      title: "SA · Проводка P2P в Malo Core",
+      prompt: "Анна → Борис 5 000 UZS. Дебет / кредит / не журнал.",
+      buckets: [
+        { id: "dr", title: "Дебет" },
+        { id: "cr", title: "Кредит" },
+        { id: "no", title: "Не журнал" },
+      ],
+      items: [
+        { id: "a", text: "Счёт Анны (пассив клиента)", bucket: "dr", why: "Отдаёт: пассив ↓." },
+        { id: "b", text: "Счёт Бориса", bucket: "cr", why: "Получает: пассив ↑." },
+        { id: "c", text: "SMS «перевод ушёл»", bucket: "no", why: "Канал, не нога." },
+        { id: "d", text: "Холд на карте до capture", bucket: "no", why: "Ещё нет journal." },
+        { id: "e", text: "Доход комиссии Malo на capture", bucket: "cr", why: "INC_FEE: CR." },
+      ],
+    },
+    {
+      kind: "sort",
       title: "SA · Need / требование системы / wish / тикет",
       prompt: "P2P в Malo Wallet. Не путайте слои.",
       buckets: [

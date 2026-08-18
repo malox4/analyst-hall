@@ -2,6 +2,7 @@ export { WALLET_QUEST } from "@/content/play/questWallet";
 export { SHOPLINE_QUEST } from "@/content/play/questShopline";
 export { MEDQUEUE_QUEST } from "@/content/play/questMedqueue";
 export { CITYPARK_QUEST } from "@/content/play/questCitypark";
+export { BANK_QUEST } from "@/content/play/questBank";
 export {
   applyDelta,
   gradeFill,
@@ -19,9 +20,10 @@ import { WALLET_QUEST } from "@/content/play/questWallet";
 import { SHOPLINE_QUEST } from "@/content/play/questShopline";
 import { MEDQUEUE_QUEST } from "@/content/play/questMedqueue";
 import { CITYPARK_QUEST } from "@/content/play/questCitypark";
+import { BANK_QUEST } from "@/content/play/questBank";
 import type { QuestCampaign } from "@/content/play/questCore";
 
-export const QUESTS: QuestCampaign[] = [WALLET_QUEST, SHOPLINE_QUEST, MEDQUEUE_QUEST, CITYPARK_QUEST];
+export const QUESTS: QuestCampaign[] = [BANK_QUEST, WALLET_QUEST, SHOPLINE_QUEST, MEDQUEUE_QUEST, CITYPARK_QUEST];
 
 export function getQuest(id: string | null | undefined) {
   if (!id) return undefined;

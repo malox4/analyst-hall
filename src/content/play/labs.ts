@@ -4,6 +4,71 @@ const o = (text: string, good: boolean, why: string) => ({ text, good, why });
 
 export const LABS: LabMission[] = [
   {
+    id: "lab-bank-ledger",
+    gradeId: "intern",
+    title: "Пробный баланс не 0, 02:40",
+    teaser: "Refund дырой, IBAN, холд. Ноги журнала, не «поправить баланс».",
+    minutes: 14,
+    xp: 90,
+    setting: "Ночная смена Malo Core. Trial UZS DR ≠ CR. Главбух в Slack. Вы на контуре ledger.",
+    blocks: [
+      {
+        kind: "sort",
+        title: "SA · Ноги, не Excel",
+        prompt: "Дебет / кредит / не проводка.",
+        buckets: [
+          { id: "dr", title: "Дебет" },
+          { id: "cr", title: "Кредит" },
+          { id: "no", title: "Не проводка" },
+        ],
+        items: [
+          { id: "a", text: "Клиент (пассив) отдаёт P2P", bucket: "dr", why: "Пассив ↓ = DR." },
+          { id: "b", text: "Клиент получает P2P", bucket: "cr", why: "Пассив ↑ = CR." },
+          { id: "c", text: "Входящий IBAN: nostro", bucket: "dr", why: "Актив банка ↑." },
+          { id: "d", text: "Холд auth до capture", bucket: "no", why: "Режет available." },
+          { id: "e", text: "UPDATE wallets.balance", bucket: "no", why: "Вне журнала." },
+        ],
+      },
+      {
+        kind: "spot",
+        title: "SA · Почему trial дырявый",
+        prompt: "Мины возврата и кассы.",
+        lines: [
+          { id: "1", text: "Refund: CR клиента без DR мерчанта", bad: true, why: "Дыра." },
+          { id: "2", text: "Capture: DR клиента CR мерчанта на сумму auth/partial", bad: false, why: "Журнал." },
+          { id: "3", text: "Auth = SUCCESS в ledger", bad: true, why: "Холд." },
+          { id: "4", text: "Settle T+1: DR мерчант CR nostro", bad: false, why: "Выплата." },
+        ],
+      },
+      {
+        kind: "match",
+        title: "SA · Три числа на кошельке",
+        prompt: "Не одно поле balance.",
+        pairs: [
+          { left: "ledger", right: "Сумма ног журнала" },
+          { left: "hold", right: "OPEN auth и исходящие" },
+          { left: "available", right: "ledger − hold" },
+        ],
+      },
+      {
+        kind: "scene",
+        title: "BA+SA · Главбух",
+        setting: "Diff 12 000 UZS после «возврата».",
+        steps: [
+          {
+            from: "Главбух",
+            line: "Накиньте клиенту, завтра разберёмся.",
+            options: [
+              o("UPDATE и закрываем смену.", false, "Дыра останется."),
+              o("Сторно или две ноги реверса. Trial должен сойтись сегодня.", true, "Журнал."),
+              o("Это не наша книга, пусть 1С.", false, "1С ест ваш журнал."),
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     id: "lab-intern-1",
     gradeId: "intern",
     title: "KYC зависла, 03:12",

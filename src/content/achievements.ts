@@ -17,6 +17,8 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: "quest-scribe", title: "Текст в контракте", description: "Три раза зафиксируйте свой текст в квесте.", icon: "pen-line", xp: 40 },
   { id: "pet-live", title: "Живой пет", description: "Закройте миссию на реальном HTTP-контуре.", icon: "cable", xp: 50 },
   { id: "pet-fix", title: "Контракт в проде", description: "Выкатите в пет идемпотентность и честный ACS.", icon: "unplug", xp: 80 },
+  { id: "pet-bank", title: "Банковский контур", description: "Проведите hold→capture на живых проводках.", icon: "landmark", xp: 70 },
+  { id: "pet-ledger", title: "Главкнига", description: "Закройте FX, зарплатный файл или клиринг на живом журнале.", icon: "book-open", xp: 80 },
   { id: "streak-3", title: "Три дня в зале", description: "Заходите три дня подряд.", icon: "calendar", xp: 30 },
   { id: "streak-7", title: "Неделя аналитика", description: "Серия 7 дней.", icon: "flame", xp: 70 },
   { id: "combo-5", title: "Серия ударов", description: "5 верных решений подряд.", icon: "zap", xp: 40 },

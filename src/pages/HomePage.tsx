@@ -28,7 +28,7 @@ export function HomePage() {
             Malo Academy
           </h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-            Квест — живой контур. Четыре продукта. Пишете AC и NFR сами, исход из вашей работы.
+            Квест, живой HTTP-пет, проводки. Касса: холд, capture, refund, IBAN, FX, зарплатный файл, клиринг.
           </p>
         </div>
         <div className="glass w-full max-w-sm rounded-3xl p-5">
@@ -131,20 +131,20 @@ export function HomePage() {
           <Cable className="text-rose" size={18} />
           <div className="font-display mt-3 text-xl">API · живой пет</div>
           <p className="mt-2 text-sm text-muted">
-            Postman/Swagger на localhost:8080/api/v1. Двойной POST пишет ledger. PUT /contract меняет продукт.
+            Postman на /api/v1: журнал, T-счета, холд→capture, IBAN/MT103, FX, зарплата, клиринг, сверка Orient.
           </p>
         </Link>
         <Link to="/quest" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Radio className="text-rose" size={18} />
           <div className="font-display mt-3 text-xl">Квесты · живые продукты</div>
           <p className="mt-2 text-sm text-muted">
-            Wallet, ShopLine, MedQueue, CityPark. Не только варианты: пишете AC, 409, SMS, NFR. Контур помнит текст.
+            Wallet, Core ledger, ShopLine, MedQueue, CityPark. Пишете ноги журнала, AC, 409, SMS. Контур помнит текст.
           </p>
         </Link>
         <Link to="/lab" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Swords className="text-rose" size={18} />
           <div className="font-display mt-3 text-xl">Зал практики</div>
-          <p className="mt-2 text-sm text-muted">12 миссий: KYC, OpenAPI, SQL, файл банка, go/no-go. Не только Wallet.</p>
+          <p className="mt-2 text-sm text-muted">Миссии: KYC, журнал, OpenAPI, SQL, файл банка, go/no-go. Не только Wallet.</p>
         </Link>
         <Link to="/interview" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Compass className="text-gold" size={18} />

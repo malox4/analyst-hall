@@ -54,6 +54,18 @@ export const JUNIOR_EXTRAS: Record<string, ContentBlock[]> = {
   ],
   "junior-1-ac": [
     {
+      kind: "spot",
+      title: "SA · Контракт карты: auth / capture / refund",
+      prompt: "Что нельзя брать в AC кассы.",
+      lines: [
+        { id: "1", text: "POST /cards/authorize при holdThenCapture → AUTHORIZED, hold OPEN, ledger без ног", bad: false, why: "Холд." },
+        { id: "2", text: "POST .../capture → DR клиента CR мерчанта, hold CAPTURED", bad: false, why: "Журнал." },
+        { id: "3", text: "Оплата должна проходить как в хорошем банке", bad: true, why: "Нет fail." },
+        { id: "4", text: "Refund без refundPostsReversal может разъехать trial — это баг контракта, не «фича кошелька»", bad: false, why: "Дыра наблюдаема." },
+        { id: "5", text: "Сделать эквайринг", bad: true, why: "Не AC." },
+      ],
+    },
+    {
       kind: "order",
       title: "SA · Given/When/Then на POST /transfers",
       prompt: "AC, который QA и Postman поймут одинаково.",
