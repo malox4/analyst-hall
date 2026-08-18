@@ -63,7 +63,7 @@ npm install
 npm run dev
 ```
 
-Тот же [http://localhost:8080](http://localhost:8080). Порт 5173 здесь не используется.
+Тот же [http://localhost:8080](http://localhost:8080).
 
 Прод-сборка:
 
