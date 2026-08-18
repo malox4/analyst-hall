@@ -28,6 +28,8 @@ export type QuestFillSlot = {
   label: string;
   accept: string[];
   hint?: string;
+  explain?: string;
+  example?: string;
 };
 
 export type QuestBeatBase = {
@@ -38,6 +40,8 @@ export type QuestBeatBase = {
   incident: string;
   hint: string;
   echoFrom?: string;
+  lesson?: string;
+  handbook?: string[];
 };
 
 export type QuestBeat = QuestBeatBase &
@@ -59,6 +63,7 @@ export type QuestBeat = QuestBeatBase &
     | {
         kind: "fill";
         prompt: string;
+        worked?: string;
         slots: QuestFillSlot[];
         passNeed: number;
         pass: QuestChoice;

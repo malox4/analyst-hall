@@ -8,13 +8,40 @@ const beats: Record<string, QuestBeat> = {
     from: "ledger",
     incident:
       "Анна отправила Борису 5 000 UZS. Mobile рисует «успех». Главбух спрашивает: какие счета, какой DC. Без вашего текста ночная смена проведёт «как получится».",
-    hint: "Клиентский счёт — пассив. Уменьшение пассива = дебет.",
+    hint: "Клиентский счёт — пассив. Кто отдаёт — дебет. Кто получает — кредит. Суммы ног равны.",
+    lesson:
+      "Проводка — не «минус баланс Анны». Это журнал из двух ног с одним journalId. Счёт клиента — пассив банка: когда Анна отдаёт деньги, пассив уменьшается → это дебет. Когда Борис получает, пассив растёт → кредит. В справочнике: Дебет, Кредит, Пассив клиента.",
+    handbook: ["debit", "credit", "journal", "liability"],
     kind: "fill",
-    prompt: "Заполните ноги одной проводки P2P. Не валюту, не UI.",
+    prompt: "Заполните три поля своими словами или вставьте пример. Система ищет опорные слова вроде «Анна», «Борис», «равны».",
+    worked:
+      "Готовая проводка этого инцидента:\n\nDR  Анна (пассив, отправитель)     5 000 UZS\nCR  Борис (пассив, получатель)     5 000 UZS\n\nОдин journalId. Не валюта, не кнопка в UI, не SMS.",
     slots: [
-      { id: "dr", label: "Дебет", accept: ["анна", "acc_anna", "клиент отправител", "from", "пассив анн"], hint: "Кто отдаёт деньги" },
-      { id: "cr", label: "Кредит", accept: ["борис", "acc_boris", "получател", "to"], hint: "Кто получает" },
-      { id: "eq", label: "Суммы ног", accept: ["равн", "5000", "одна сумма", "баланс"], hint: "DR == CR" },
+      {
+        id: "dr",
+        label: "Дебет",
+        accept: ["анна", "acc_anna", "клиент отправител", "from", "пассив анн"],
+        hint: "Кто отдаёт 5000",
+        explain:
+          "Дебет — левая нога. Анна отдаёт деньги, её пассив падает. Пишите счёт отправителя, не «списание с кошелька».",
+        example: "Дебет Анна (отправитель, пассив уменьшается)",
+      },
+      {
+        id: "cr",
+        label: "Кредит",
+        accept: ["борис", "acc_boris", "получател", "to"],
+        hint: "Кто получает 5000",
+        explain: "Кредит — правая нога. Борис получает, его пассив растёт. Это не nostro и не комиссия банка.",
+        example: "Кредит Борис (получатель, пассив увеличивается)",
+      },
+      {
+        id: "eq",
+        label: "Суммы ног",
+        accept: ["равн", "5000", "одна сумма", "баланс"],
+        hint: "DR должен равняться CR",
+        explain: "В одной валюте сумма всех дебетов ордера = сумма кредитов. Здесь обе ноги по 5000. Иначе пробный баланс не сойдётся.",
+        example: "Суммы равны: обе ноги 5000",
+      },
     ],
     passNeed: 3,
     pass: o("pass", "Журнал сходится", "P2P — две ноги, не «минус баланс».", { books: 14, money: 10, flagsAdd: ["p2p_legs"] }, "q2"),
@@ -28,10 +55,14 @@ const beats: Record<string, QuestBeat> = {
     incident:
       "Auth Cafe Orient 12 000. PO: «списали». Клиент видит 12к меньше. В главкниге ещё ноль. Напишите, что такое холд.",
     hint: "Холд режет available. Проводка рождается на capture.",
+    lesson:
+      "Три числа на кошельке: ledger (ноги журнала), hold (OPEN резерв), available = ledger − hold. Auth кафе 12 000 ставит холд. Capture делает DR клиента CR мерчанта. Если ACS молчит — статус UNKNOWN, не SUCCESS.",
+    handbook: ["hold", "available", "capture", "acs"],
     kind: "write",
     prompt:
       "Три строки: что такое холд; что такое capture; что видит клиент, если ACS молчит. Не пишите «как у банка».",
-    placeholder: "Холд: …\nCapture: …\nACS timeout: …",
+    placeholder:
+      "Холд: OPEN резерв, режет available, журнала нет.\nCapture: DR клиент CR мерчант, hold CAPTURED — вот тогда проводка.\nACS timeout: статус UNKNOWN, не SUCCESS — иначе ложное списание.",
     minChars: 90,
     passNeed: 2,
     checks: [
@@ -49,6 +80,9 @@ const beats: Record<string, QuestBeat> = {
     from: "ops + 1C",
     incident: "Вернули 12к клиенту одной ногой CR. Trial: DR 230000 CR 242000. Найдите мины.",
     hint: "Возврат — реверс capture. Не «накинуть на кошелёк».",
+    lesson:
+      "Refund после capture = зеркальные ноги: DR Cafe, CR клиент. Одна нога «плюс клиенту» рвёт пробный баланс. Void — это снятие холда до capture, без журнала.",
+    handbook: ["refund", "trial", "void", "capture"],
     kind: "spot",
     block: {
       kind: "spot",
@@ -72,6 +106,9 @@ const beats: Record<string, QuestBeat> = {
     from: "Orient correspondent",
     incident: "Пришла пачка: зарплата на IBAN Анны, платёж на IBAN, которого нет, исходящая аренда. Разложите проводки.",
     hint: "Nostro — наш счёт в чужом банке. Невыясненные — не «пропало».",
+    lesson:
+      "Nostro — актив. Входящий на наш IBAN: DR nostro CR клиент. Исходящий сначала холд, журнал только после ack posted, потом можно отдать MT103. IBAN не из плана счетов → suspense, не Анна «чтобы закрыть пачку».",
+    handbook: ["nostro", "iban-in", "iban-out", "suspense", "mt103"],
     kind: "sort",
     block: {
       kind: "sort",
@@ -101,9 +138,13 @@ const beats: Record<string, QuestBeat> = {
     incident:
       "Анна покупает 10 USD. Dev хочет одну проводку «−126 500 UZS +10 USD». Trial смешает яблоки с ящиками. Напишите контракт.",
     hint: "Пробный баланс — по валюте. Спред — отдельная нога fee.",
+    lesson:
+      "Нельзя смешать UZS и USD в одном ордере. Два журнала: UZS сходится, USD сходится. Спред в bps — CR на доход комиссии. Settle мерчанта — это T+1 с nostro, не момент capture.",
+    handbook: ["fx", "trial", "clearing", "journal"],
     kind: "write",
     prompt: "Ноги UZS, ноги USD, что делать со спредом, зачем T+1 settle мерчанта.",
-    placeholder: "UZS: DR … CR …\nUSD: DR … CR …\nСпред: …\nSettle: …",
+    placeholder:
+      "UZS: DR Анна (пассив) / CR FX-позиция UZS. Плюс спред — CR комиссия.\nUSD: DR FX-позиция USD / CR Анна USD.\nСпред не прячем в mid-курсе.\nSettle мерчанта T+1: DR Cafe CR nostro — это не capture.",
     minChars: 100,
     passNeed: 3,
     checks: [
@@ -122,12 +163,38 @@ const beats: Record<string, QuestBeat> = {
     from: "HR + nostro",
     incident: "salary_20260818.csv: строки 35 000, trailer 999 999. HR: «грузите, завтра поправим». Заполните правило.",
     hint: "Повтор имени файла — не вторая зарплата.",
+    lesson:
+      "Зарплатный файл — пачка входящих IBAN. Trailer в конце файла должен равняться сумме строк. Иначе пачку не проводим. Повтор того же fileName — 409. Строка с неизвестным IBAN — reject или suspense, не зачисление Анне.",
+    handbook: ["salary", "iban-in", "suspense", "idempotency"],
     kind: "fill",
-    prompt: "Контракт зарплатного файла.",
+    prompt: "Напишите правило файла. Можно вставить примеры — это учебный контракт, не экзамен на память.",
+    worked:
+      "Контракт, который ops может проверить:\n• сумма строк ≠ trailer → не грузим весь файл (reject)\n• тот же fileName повторно → 409, проводки не дублируем\n• чужой IBAN в строке → suspense или reject строки, не кредит Анне",
     slots: [
-      { id: "tr", label: "Trailer", accept: ["не груз", "reject", "отказ", "≠", "не равен", "must"], hint: "Если сумма строк ≠ trailer" },
-      { id: "dup", label: "Тот же fileName", accept: ["409", "дубл", "один раз", "idempot", "не второй"], hint: "Повтор файла" },
-      { id: "iban", label: "Строка с чужим IBAN", accept: ["reject", "suspense", "невыясн", "остальн"], hint: "Не валить весь файл молча в Анну" },
+      {
+        id: "tr",
+        label: "Trailer",
+        accept: ["не груз", "reject", "отказ", "≠", "не равен", "must"],
+        hint: "Если сумма строк ≠ trailer",
+        explain: "Trailer — контрольная сумма в конце файла. 35 000 в строках и 999 999 в trailer = мусор. HR «завтра поправим» не основание проводить.",
+        example: "Если сумма строк не равна trailer — не грузить, reject",
+      },
+      {
+        id: "dup",
+        label: "Тот же fileName",
+        accept: ["409", "дубл", "один раз", "idempot", "не второй"],
+        hint: "Повтор файла",
+        explain: "Как Idempotency-Key у P2P: один файл — одна пачка проводок. Второй POST с тем же именем не должен начислить зарплату ещё раз.",
+        example: "Повтор fileName → 409, не вторая зарплата",
+      },
+      {
+        id: "iban",
+        label: "Строка с чужим IBAN",
+        accept: ["reject", "suspense", "невыясн", "остальн"],
+        hint: "Не валить весь файл молча в Анну",
+        explain: "IBAN не из плана счетов — невыясненные или отказ строки. Остальные строки по политике: либо грузим, либо валим весь файл, но это надо назвать.",
+        example: "Чужой IBAN → suspense или reject строки",
+      },
     ],
     passNeed: 2,
     pass: o("pass", "Файл как платёж", "HR больше не кормит ledger мусором.", { salary: 14, trust: 8, flagsAdd: ["file_ok"] }, "end"),

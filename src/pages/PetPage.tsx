@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Cable, Copy, RotateCcw, Send } from "lucide-react";
+import { HandbookPeek } from "@/components/academy/HandbookPeek";
 import { PageMotion } from "@/components/ui/PageMotion";
 import { Pill } from "@/components/ui/Pill";
 import { useProgress } from "@/stores/progressStore";
@@ -178,7 +180,11 @@ export function PetPage() {
           <p className="mt-3 max-w-2xl text-muted">
             Журнал, T-счета, холд→capture→refund, IBAN/nostro, FX, зарплатный файл, клиринг, MT103. Postman:{" "}
             <code className="text-gold">{origin}/api/v1</code>. В путях{" "}
-            <code className="text-gold">pay_replace</code> / <code className="text-gold">out_replace</code> подставьте живой id.
+            <code className="text-gold">pay_replace</code> / <code className="text-gold">out_replace</code> подставьте живой id. Словарь ног:{" "}
+            <Link to="/book" className="text-gold">
+              справочник
+            </Link>
+            .
           </p>
         </div>
         <button type="button" onClick={reset} className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-sm text-muted">
@@ -399,6 +405,7 @@ export function PetPage() {
           </section>
         </div>
       </div>
+      <HandbookPeek ids={["debit", "credit", "hold", "nostro", "fx", "salary"]} />
     </PageMotion>
   );
 }

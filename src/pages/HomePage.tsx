@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Cable, Compass, Lock, Radio, Sparkles, Swords, Unlock } from "lucide-react";
+import { ArrowRight, BookOpen, Cable, Compass, Lock, Radio, Sparkles, Swords, Unlock } from "lucide-react";
 import { CURRICULUM } from "@/content/curriculum";
 import { PageMotion } from "@/components/ui/PageMotion";
 import { Pill } from "@/components/ui/Pill";
@@ -127,6 +127,13 @@ export function HomePage() {
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Link to="/book" className="glass rounded-3xl p-5 transition hover:border-gold/30">
+          <BookOpen className="text-gold" size={18} />
+          <div className="font-display mt-3 text-xl">Справочник</div>
+          <p className="mt-2 text-sm text-muted">
+            Дебет, кредит, холд, nostro, FX, trailer — с примером ноги и API. Открывается рядом с квестом.
+          </p>
+        </Link>
         <Link to="/pet" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Cable className="text-rose" size={18} />
           <div className="font-display mt-3 text-xl">API · живой пет</div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Radio, RotateCcw } from "lucide-react";
+import { HandbookPeek } from "@/components/academy/HandbookPeek";
 import { PageMotion } from "@/components/ui/PageMotion";
 import { Pill } from "@/components/ui/Pill";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -85,8 +86,11 @@ function QuestList() {
       <Pill tone="rose">Квесты · живые продукты</Pill>
       <h1 className="font-display mt-3 text-4xl md:text-5xl">Смены на контурах</h1>
       <p className="mt-3 max-w-2xl text-muted">
-        Не один Wallet и не только кнопки. Четыре мок-продукта. На сменах нужно писать AC, NFR, SMS, поля 409 — текст
-        уходит в контур и двигает исход.
+        Не один Wallet и не только кнопки. На сменах пишете ноги журнала, AC, 409. Если неясно, что такое дебет —{" "}
+        <Link to="/book" className="text-gold">
+          справочник
+        </Link>{" "}
+        с примерами открыт рядом с каждым ходом.
       </p>
 
       {inPlay && (
@@ -261,6 +265,12 @@ function QuestPlay({ questId }: { questId: string }) {
         <div className="text-[11px] uppercase tracking-[0.18em] text-rose">Инцидент</div>
         <p className="mt-2 text-sm leading-7 text-paper md:text-base">{beat.incident}</p>
         <p className="mt-3 text-xs text-gold">{beat.hint}</p>
+        {beat.lesson && (
+          <div className="mt-4 rounded-2xl border border-mint/20 bg-mint/5 p-4">
+            <div className="text-[11px] uppercase tracking-[0.16em] text-mint">Как это устроено</div>
+            <p className="mt-2 text-sm leading-6">{beat.lesson}</p>
+          </div>
+        )}
         {echo && (
           <div className="mt-4 border-t border-white/8 pt-4">
             <div className="text-[11px] uppercase tracking-widest text-muted">Контур помнит ваш текст</div>
@@ -308,6 +318,8 @@ function QuestPlay({ questId }: { questId: string }) {
           <CommitBar ready={Boolean(workReady)} ok={drillOk} product={campaign.product} onCommit={commitWork} />
         </div>
       )}
+
+      <HandbookPeek ids={beat.handbook} />
     </PageMotion>
   );
 }
@@ -328,6 +340,20 @@ function WritePanel({
     <section className="glass mt-6 rounded-3xl p-6 md:p-8">
       <div className="text-[11px] uppercase tracking-[0.18em] text-mint">Напишите в продукт</div>
       <p className="mt-2 text-sm leading-6">{beat.prompt}</p>
+      <p className="mt-2 text-xs text-muted">
+        Ниже шаблон. Можно переписать своими словами — зелёные галочки подскажут, какие швы закрыты.
+      </p>
+      <div className="mt-3 rounded-2xl border border-gold/20 bg-gold/5 p-4">
+        <div className="text-[11px] uppercase tracking-[0.16em] text-gold">Пример, с чего начать</div>
+        <pre className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gold-2">{beat.placeholder}</pre>
+        <button
+          type="button"
+          className="mt-2 text-xs text-mint"
+          onClick={() => setText(beat.placeholder)}
+        >
+          Подставить шаблон
+        </button>
+      </div>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -378,25 +404,63 @@ function FillPanel({
   const grade = gradeFill(values, beat.slots, beat.passNeed);
   const filled = beat.slots.every((s) => (values[s.id] ?? "").trim());
 
+  function fillExample(id: string, example: string) {
+    setValues((v) => ({ ...v, [id]: example }));
+  }
+
+  function fillAll() {
+    const next: Record<string, string> = { ...values };
+    for (const s of beat.slots) if (s.example) next[s.id] = s.example;
+    setValues(next);
+  }
+
   return (
     <section className="glass mt-6 rounded-3xl p-6 md:p-8">
-      <div className="text-[11px] uppercase tracking-[0.18em] text-mint">Допишите контракт</div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="text-[11px] uppercase tracking-[0.18em] text-mint">Допишите контракт</div>
+        {beat.slots.some((s) => s.example) && (
+          <button type="button" onClick={fillAll} className="text-xs text-gold">
+            Подставить все примеры
+          </button>
+        )}
+      </div>
       <p className="mt-2 text-sm leading-6">{beat.prompt}</p>
-      <div className="mt-4 grid gap-4">
-        {beat.slots.map((s) => (
-          <label key={s.id} className="block">
-            <span className="text-xs text-muted">{s.label}</span>
-            <input
-              value={values[s.id] ?? ""}
-              onChange={(e) => setValues((v) => ({ ...v, [s.id]: e.target.value }))}
-              placeholder={s.hint ?? ""}
-              className="mt-1 w-full border-b border-white/10 bg-transparent py-2 text-sm outline-none focus:border-gold/40"
-            />
-            <span className={cn("text-[11px]", grade.hits.some((h) => h.id === s.id) ? "text-mint" : "text-muted")}>
-              {grade.hits.some((h) => h.id === s.id) ? "похоже на контракт" : "пока не бьётся"}
-            </span>
-          </label>
-        ))}
+      {beat.worked && (
+        <div className="mt-4 rounded-2xl border border-gold/20 bg-gold/5 p-4">
+          <div className="text-[11px] uppercase tracking-[0.16em] text-gold">Разбор · что должно получиться</div>
+          <pre className="mt-2 whitespace-pre-wrap text-sm leading-6">{beat.worked}</pre>
+        </div>
+      )}
+      <div className="mt-4 grid gap-5">
+        {beat.slots.map((s) => {
+          const hit = grade.hits.some((h) => h.id === s.id);
+          return (
+            <label key={s.id} className="block">
+              <span className="text-xs uppercase tracking-[0.12em] text-muted">{s.label}</span>
+              {s.explain && <p className="mt-1 text-sm leading-6 text-paper">{s.explain}</p>}
+              {s.example && (
+                <div className="mt-2 flex flex-wrap items-start justify-between gap-2 rounded-2xl border border-white/8 px-3 py-2">
+                  <div>
+                    <div className="text-[11px] uppercase tracking-[0.14em] text-gold">Пример</div>
+                    <p className="mt-1 text-sm leading-5 text-gold-2">{s.example}</p>
+                  </div>
+                  <button type="button" onClick={() => fillExample(s.id, s.example!)} className="shrink-0 text-xs text-mint">
+                    Вставить
+                  </button>
+                </div>
+              )}
+              <input
+                value={values[s.id] ?? ""}
+                onChange={(e) => setValues((v) => ({ ...v, [s.id]: e.target.value }))}
+                placeholder={s.hint ?? "своими словами или пример выше"}
+                className="mt-2 w-full border-b border-white/10 bg-transparent py-2 text-sm outline-none focus:border-gold/40"
+              />
+              <span className={cn("text-[11px]", hit ? "text-mint" : "text-muted")}>
+                {hit ? "похоже на контракт" : "пока не бьётся — сверьтесь с примером или справочником"}
+              </span>
+            </label>
+          );
+        })}
       </div>
       <button
         type="button"
@@ -409,6 +473,9 @@ function FillPanel({
       >
         Зафиксировать в {product}
       </button>
+      <p className="mt-2 text-xs text-muted">
+        Нужно попасть в {beat.passNeed} из {beat.slots.length} полей. Можно вставить пример — это учебник, не контрольная.
+      </p>
     </section>
   );
 }
