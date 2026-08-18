@@ -1,5 +1,5 @@
 import { PageMotion } from "@/components/ui/PageMotion";
-import { useProgress, overallProgress, gradeProgress } from "@/stores/progressStore";
+import { useProgress, gradeProgress, learnerRank } from "@/stores/progressStore";
 import { CURRICULUM, allModules } from "@/content/curriculum";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { loadAllPractice } from "@/lib/idb";
@@ -14,6 +14,10 @@ export function ProfilePage() {
   const modules = useProgress((s) => s.modules);
   const badges = useProgress((s) => s.badges);
   const examBest = useProgress((s) => s.examBest);
+  const streak = useProgress((s) => s.streak) ?? 0;
+  const labs = useProgress((s) => s.labs) ?? {};
+  const quest = useProgress((s) => s.quest);
+  const rank = learnerRank(xp);
   const [works, setWorks] = useState(0);
 
   useEffect(() => {
@@ -53,12 +57,15 @@ export function ProfilePage() {
           </div>
         </div>
         <div className="glass grid grid-cols-2 gap-4 rounded-3xl p-6">
+          <Stat label="Ранг" value={rank.title} />
           <Stat label="XP" value={String(xp)} />
           <Stat label="Модули" value={`${done}/${total}`} />
           <Stat label="Печати" value={String(badges.length)} />
           <Stat label="Экзамен" value={examBest != null ? `${examBest}%` : "—"} />
           <Stat label="Практики" value={String(works)} />
-          <Stat label="Путь" value={`${overallProgress()}%`} />
+          <Stat label="Серия" value={`${streak} дн.`} />
+          <Stat label="Миссии зала" value={String(Object.keys(labs).length)} />
+          <Stat label="Исходы квеста" value={`${Object.keys(quest?.done ?? {}).length}/4`} />
         </div>
       </div>
       <div className="mt-6 space-y-4">

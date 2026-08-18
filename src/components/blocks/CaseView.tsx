@@ -1,12 +1,21 @@
 import { useState } from "react";
 import type { CaseBlock } from "@/types/content";
+import { useProgress } from "@/stores/progressStore";
 import { cn } from "@/lib/cn";
 
-export function CaseView({ block }: { block: CaseBlock }) {
+export function CaseView({ block, moduleId }: { block: CaseBlock; moduleId: string }) {
   const [pick, setPick] = useState<number | null>(null);
+  const complete = useProgress((s) => s.completeDrill);
+
+  function choose(i: number) {
+    if (pick !== null) return;
+    setPick(i);
+    if (block.options[i].good) complete(moduleId, block.title, 18);
+  }
+
   return (
     <section className="glass rounded-3xl p-6 md:p-8">
-      <div className="text-[11px] uppercase tracking-[0.18em] text-rose">Кейс с разбором</div>
+      <div className="text-[11px] uppercase tracking-[0.18em] text-rose">Кейс · ход за 30 секунд</div>
       <h3 className="font-display mt-1 text-2xl">{block.title}</h3>
       <p className="mt-3 text-[15px] leading-7 text-muted">{block.situation}</p>
       <p className="mt-3 font-medium">{block.question}</p>
@@ -17,7 +26,7 @@ export function CaseView({ block }: { block: CaseBlock }) {
             <button
               key={o.text}
               type="button"
-              onClick={() => setPick(i)}
+              onClick={() => choose(i)}
               className={cn(
                 "rounded-2xl border px-4 py-3 text-left text-sm",
                 pick === i && o.good && "border-mint/40 bg-mint/10",
@@ -33,6 +42,15 @@ export function CaseView({ block }: { block: CaseBlock }) {
         })}
       </div>
       {pick !== null && <p className="mt-4 text-sm leading-6 text-gold-2/90">{block.debrief}</p>}
+      {pick !== null && !block.options[pick].good && (
+        <button
+          type="button"
+          onClick={() => setPick(null)}
+          className="mt-4 rounded-full border border-white/15 px-4 py-2 text-sm text-muted"
+        >
+          Выбрать другой ход
+        </button>
+      )}
     </section>
   );
 }

@@ -1,11 +1,22 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckCircle2, Lock, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Lock, RotateCcw, Swords, BookOpen } from "lucide-react";
 import { getModule, nextModule, prevModule } from "@/content/curriculum";
 import { PageMotion } from "@/components/ui/PageMotion";
 import { Pill } from "@/components/ui/Pill";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
+import { isPlayBlock, type ContentBlock } from "@/types/content";
 import { isModuleUnlocked, useProgress } from "@/stores/progressStore";
+import { cn } from "@/lib/cn";
+
+const DRILL_KINDS = new Set(["sort", "match", "scene", "order", "spot", "case"]);
+
+function inPlayTab(block: ContentBlock) {
+  if (block.kind === "case") {
+    return /^(SA|BA\+|BA ·|Guest)/.test(block.title);
+  }
+  return isPlayBlock(block.kind);
+}
 
 export function ModulePage() {
   const { moduleId } = useParams();
@@ -17,10 +28,27 @@ export function ModulePage() {
   const reset = useProgress((s) => s.resetModule);
   const st = useProgress((s) => (moduleId ? s.modules[moduleId] : undefined));
   const track = useProgress((s) => s.track);
+  const [tab, setTab] = useState<"play" | "read">("play");
 
   useEffect(() => {
     if (module) start(module.id);
+    setTab("play");
   }, [module, start]);
+
+  const playBlocks = useMemo(
+    () => (module ? module.blocks.filter((b) => inPlayTab(b)) : []),
+    [module],
+  );
+  const readBlocks = useMemo(
+    () => (module ? module.blocks.filter((b) => !inPlayTab(b)) : []),
+    [module],
+  );
+  const drillBlocks = useMemo(
+    () => playBlocks.filter((b) => DRILL_KINDS.has(b.kind)),
+    [playBlocks],
+  );
+  const drillsDone = drillBlocks.filter((b) => st?.drills?.[b.title]).length;
+  const drillsNeed = drillBlocks.length ? Math.ceil(drillBlocks.length * 0.7) : 0;
 
   const canComplete = useMemo(() => {
     if (!module || !st) return false;
@@ -28,8 +56,9 @@ export function ModulePage() {
     const hasPractice = module.blocks.some((b) => b.kind === "practice");
     if (hasQuiz && !st.quizPassed) return false;
     if (hasPractice && !st.practiceDone) return false;
+    if (drillsNeed && drillsDone < drillsNeed) return false;
     return true;
-  }, [module, st]);
+  }, [module, st, drillsNeed, drillsDone]);
 
   if (!module) return <PageMotion>Модуль не найден.</PageMotion>;
   if (track === "linear" && !isModuleUnlocked(module.id)) {
@@ -49,6 +78,7 @@ export function ModulePage() {
 
   const prev = prevModule(module.id);
   const next = nextModule(module.id);
+  const shown = tab === "play" ? playBlocks : readBlocks;
 
   return (
     <PageMotion>
@@ -75,21 +105,45 @@ export function ModulePage() {
           <Pill>{module.gradeId}</Pill>
           <Pill tone={module.skill === "soft" ? "rose" : "muted"}>{module.skill}</Pill>
           <Pill tone="gold">{module.minutes} мин · {module.xp} XP</Pill>
+          <Pill tone="mint">
+            Игры {drillsDone}/{drillBlocks.length}
+          </Pill>
         </div>
         <h1 className="font-display mt-4 text-4xl md:text-5xl">{module.title}</h1>
         <p className="mt-3 text-lg text-muted">{module.teaser}</p>
-        <ul className="mt-5 flex flex-wrap gap-2">
-          {module.goals.map((g) => (
-            <li key={g} className="rounded-full border border-white/10 px-3 py-1 text-xs text-muted">
-              {g}
-            </li>
-          ))}
-        </ul>
       </header>
 
-      <div className="mt-8 space-y-6">
-        {module.blocks.map((block, i) => (
-          <BlockRenderer key={`${block.kind}-${i}`} block={block} module={module} />
+      <div className="sticky top-0 z-20 mt-6 -mx-1 flex gap-2 bg-[#0b0f19]/80 px-1 py-3 backdrop-blur-xl">
+        <button
+          type="button"
+          onClick={() => setTab("play")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm",
+            tab === "play" ? "bg-gold text-ink" : "border border-white/12 text-muted",
+          )}
+        >
+          <Swords size={14} /> Играть
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab("read")}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm",
+            tab === "read" ? "bg-white/10 text-paper" : "border border-white/12 text-muted",
+          )}
+        >
+          <BookOpen size={14} /> Разбор
+        </button>
+        <span className="self-center text-xs text-muted">
+          {tab === "play"
+            ? "Сначала контракт и ход. Текст — если застряли."
+            : "Теория и схемы. На смене их читают после кейса."}
+        </span>
+      </div>
+
+      <div className="mt-4 space-y-6">
+        {shown.map((block, i) => (
+          <BlockRenderer key={`${tab}-${block.kind}-${i}`} block={block} module={module} />
         ))}
       </div>
 
@@ -97,7 +151,7 @@ export function ModulePage() {
         <div>
           <div className="font-display text-xl">Закрепление</div>
           <p className="mt-1 text-sm text-muted">
-            Чтобы закрыть модуль: пройдите квиз ≥ 70% и сохраните практику. Теорию можно отметить отдельно.
+            Чтобы закрыть: ~70% игр{drillsNeed ? ` (${drillsDone}/${drillsNeed})` : ""}, квиз ≥ 70% и сохранённая практика.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -106,7 +160,7 @@ export function ModulePage() {
             onClick={() => markTheory(module.id)}
             className="rounded-full border border-white/15 px-4 py-2 text-sm"
           >
-            Теория прочитана
+            Разбор отмечен
           </button>
           <button
             type="button"
