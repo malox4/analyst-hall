@@ -28,7 +28,7 @@ export function HomePage() {
             Malo Academy
           </h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-            Не учебник. Сначала игра: сортировки, диалоги, брак в тикете. Текст — вкладка «Разбор», если застряли.
+            Продукт-база — Malo Wallet. Плюс гостевые задачи ShopLine, MedQueue, Orient. Играть = контракт, статусы, SQL, ошибки. Не бесконечный поиск need.
           </p>
         </div>
         <div className="glass w-full max-w-sm rounded-3xl p-5">
@@ -129,7 +129,7 @@ export function HomePage() {
         <Link to="/lab" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Swords className="text-rose" size={18} />
           <div className="font-display mt-3 text-xl">Зал практики</div>
-          <p className="mt-2 text-sm text-muted">12 миссий без учебника: ночной чат, груминг, go/no-go.</p>
+          <p className="mt-2 text-sm text-muted">12 миссий: KYC, OpenAPI, SQL, файл банка, go/no-go. Не только Wallet.</p>
         </Link>
         <Link to="/interview" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Compass className="text-gold" size={18} />

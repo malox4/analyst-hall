@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, Swords } from "lucide-react";
 import { LABS } from "@/content/play/labs";
+import { WORLD } from "@/content/play/world";
 import { PageMotion } from "@/components/ui/PageMotion";
 import { Pill } from "@/components/ui/Pill";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
@@ -23,8 +24,15 @@ export function LabListPage() {
       <Pill tone="rose">Зал практики</Pill>
       <h1 className="font-display mt-3 text-4xl md:text-5xl">Играть как на смене</h1>
       <p className="mt-3 max-w-2xl text-muted">
-        Без учебника. Сортировки, диалоги, брак в тикете, go/no-go. Закрыто {done}/{LABS.length}.
+        {WORLD.line} Гости: ShopLine, MedQueue, CityPark, Orient, HR Pulse. BA-ход и SA-ход в одной смене. Закрыто {done}/{LABS.length}.
       </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {WORLD.systems.map((s) => (
+          <span key={s.id} className="rounded-full border border-white/10 px-3 py-1 text-[11px] text-muted">
+            {s.name}
+          </span>
+        ))}
+      </div>
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         {LABS.map((lab) => {
           const closed = Boolean(labsDone[lab.id]);

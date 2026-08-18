@@ -5,11 +5,18 @@ import { getModule, nextModule, prevModule } from "@/content/curriculum";
 import { PageMotion } from "@/components/ui/PageMotion";
 import { Pill } from "@/components/ui/Pill";
 import { BlockRenderer } from "@/components/blocks/BlockRenderer";
-import { isPlayBlock } from "@/types/content";
+import { isPlayBlock, type ContentBlock } from "@/types/content";
 import { isModuleUnlocked, useProgress } from "@/stores/progressStore";
 import { cn } from "@/lib/cn";
 
 const DRILL_KINDS = new Set(["sort", "match", "scene", "order", "spot", "case"]);
+
+function inPlayTab(block: ContentBlock) {
+  if (block.kind === "case") {
+    return /^(SA|BA\+|BA ·|Guest)/.test(block.title);
+  }
+  return isPlayBlock(block.kind);
+}
 
 export function ModulePage() {
   const { moduleId } = useParams();
@@ -29,11 +36,11 @@ export function ModulePage() {
   }, [module, start]);
 
   const playBlocks = useMemo(
-    () => (module ? module.blocks.filter((b) => isPlayBlock(b.kind)) : []),
+    () => (module ? module.blocks.filter((b) => inPlayTab(b)) : []),
     [module],
   );
   const readBlocks = useMemo(
-    () => (module ? module.blocks.filter((b) => !isPlayBlock(b.kind)) : []),
+    () => (module ? module.blocks.filter((b) => !inPlayTab(b)) : []),
     [module],
   );
   const drillBlocks = useMemo(
@@ -129,8 +136,8 @@ export function ModulePage() {
         </button>
         <span className="self-center text-xs text-muted">
           {tab === "play"
-            ? "Сначала действие. Текст — после, если застряли."
-            : "Теория и схемы. На смене её читают после кейса."}
+            ? "Сначала контракт и ход. Текст — если застряли."
+            : "Теория и схемы. На смене их читают после кейса."}
         </span>
       </div>
 
