@@ -50,8 +50,7 @@ export function ExamPage() {
       {step === "intro" && (
         <div className="glass mt-8 max-w-xl rounded-3xl p-8">
           <p className="leading-7 text-paper/90">
-            Это не тест на термины. Вас ставят в комнату со стейкхолдерами, сломанным списанием и чужим «давайте Kafka».
-            Выбирайте ход аналитика.
+            Это не тест на термины. Комната: сломанное списание, дыра в trial, чужое «давайте Kafka». Ход аналитика, не слайд.
           </p>
           <div className="mt-4 text-sm text-muted">
             Лучший результат: {best ?? "—"}% · попыток: {attempts}

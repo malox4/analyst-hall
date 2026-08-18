@@ -31,7 +31,7 @@ export function Sidebar() {
         </div>
         <div>
           <div className="font-display text-lg leading-none text-gold-2">Malo</div>
-          <div className="mt-1 text-[11px] uppercase tracking-[0.22em] text-muted">Academy</div>
+          <div className="mt-1 text-[11px] uppercase tracking-[0.22em] text-muted">зал · пет живой</div>
         </div>
       </div>
 

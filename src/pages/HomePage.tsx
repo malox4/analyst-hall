@@ -23,12 +23,12 @@ export function HomePage() {
     <PageMotion>
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="max-w-2xl">
-          <Pill>BA · SA · путь от Intern до Senior</Pill>
+          <Pill>BA · SA · живой контур, не слайд</Pill>
           <h1 className="font-display mt-4 text-4xl leading-[1.1] text-paper md:text-6xl">
             Malo Academy
           </h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-            Квест, живой HTTP-пет, проводки. Касса: холд, capture, refund, IBAN, FX, зарплатный файл, клиринг.
+            Стреляйте в API, пишите ноги журнала, закрывайте смены. Холд, capture, IBAN, FX — контур помнит, что вы сделали.
           </p>
         </div>
         <div className="glass w-full max-w-sm rounded-3xl p-5">

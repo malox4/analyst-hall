@@ -1,3 +1,4 @@
+# Сборка: Vite dist. Рантайм: Node отдаёт статику и живой /api/v1 (не nginx-only).
 FROM node:22-alpine AS build
 WORKDIR /app
 
