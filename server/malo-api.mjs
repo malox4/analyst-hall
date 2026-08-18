@@ -1404,7 +1404,9 @@ function snapshot() {
       fxPosted: (state.fxDeals ?? []).some((d) => d.status === "POSTED"),
       salaryPosted: (state.salary ?? []).some((s) => s.status === "POSTED"),
       clearingSettled: (state.clearing ?? []).some((c) => c.status === "SETTLED"),
-      partialCaptured: state.payments.some((p) => p.status === "CAPTURED" && p.capturedAmount && p.capturedAmount < p.amount),
+      partialCaptured: state.payments.some(
+        (p) => p.capturedAmount && p.capturedAmount < p.amount && ["CAPTURED", "REFUNDED", "CHARGEBACK"].includes(p.status),
+      ),
       suspensePosted: (state.suspense ?? []).some((s) => s.status === "SUSPENSE" || s.status === "ALLOCATED"),
       mt103Issued: (state.outgoing ?? []).some((o) => o.status === "POSTED" && o.mt103),
     },
