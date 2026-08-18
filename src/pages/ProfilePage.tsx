@@ -1,6 +1,7 @@
 import { PageMotion } from "@/components/ui/PageMotion";
 import { useProgress, gradeProgress, learnerRank } from "@/stores/progressStore";
 import { CURRICULUM, allModules } from "@/content/curriculum";
+import { QUESTS } from "@/content/play/quest";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { loadAllPractice } from "@/lib/idb";
 import { useEffect, useState } from "react";
@@ -65,7 +66,7 @@ export function ProfilePage() {
           <Stat label="Практики" value={String(works)} />
           <Stat label="Серия" value={`${streak} дн.`} />
           <Stat label="Миссии зала" value={String(Object.keys(labs).length)} />
-          <Stat label="Исходы квеста" value={`${Object.keys(quest?.done ?? {}).length}/4`} />
+          <Stat label="Исходы квеста" value={`${Object.keys(quest?.done ?? {}).length}/${QUESTS.length}`} />
         </div>
       </div>
       <div className="mt-6 space-y-4">

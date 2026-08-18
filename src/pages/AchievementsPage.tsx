@@ -39,7 +39,7 @@ export function AchievementsPage() {
     <PageMotion>
       <h1 className="font-display text-4xl md:text-5xl">Печати зала</h1>
       <p className="mt-3 max-w-xl text-muted">
-        Бейджи открываются сами, когда вы закрываете путь, квизы и симуляцию. Сейчас у вас {xp} XP и {badges.length} печатей.
+        Бейджи сами, когда закрываете путь, пет, квест. Сейчас {xp} XP и {badges.length} печатей — зал помнит смену.
       </p>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {ACHIEVEMENTS.map((a) => {

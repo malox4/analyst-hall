@@ -1,3 +1,4 @@
+/** Production server: dist + live /api/v1. Docker and `npm start`. */
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";

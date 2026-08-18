@@ -1,6 +1,6 @@
 export const WORLD = {
   product: "Malo Wallet",
-  line: "Кошелёк, карты, P2P, KYC, эквайринг. Вы аналитик в платформенной команде.",
+  line: "Malo Core: кошелёк, журнал, карты, IBAN, FX. Вы аналитик на живом контуре — Postman не бутафория.",
   systems: [
     { id: "wallet-api", name: "wallet-api", owns: "переводы, лимиты, идемпотентность" },
     { id: "ledger", name: "ledger", owns: "движения денег, не UI" },

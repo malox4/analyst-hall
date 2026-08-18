@@ -1,3 +1,4 @@
+/** Malo Core Banking pet — journal, holds, IBAN, FX. Hit /api/v1 from Postman. Factory contract is broken on purpose. */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

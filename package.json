@@ -1,12 +1,19 @@
 {
   "name": "malo-academy",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
+  "description": "Play-first BA/SA academy with a live core-banking pet: journals, holds, IBAN, FX. Russian UI.",
+  "homepage": "https://github.com/malox4/malo-academy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/malox4/malo-academy.git"
+  },
   "scripts": {
     "dev": "vite --host :: --port 8080 --strictPort",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --host :: --port 8080 --strictPort"
+    "preview": "vite preview --host :: --port 8080 --strictPort",
+    "start": "node server/serve.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.23.12",

@@ -1,12 +1,28 @@
+# Malo Academy — зал + живой пет /api/v1 на :8080
+# Ledger: volume academy-data → /app/data
 services:
   academy:
     build: .
     image: malo-academy:local
+    container_name: malo-academy
     ports:
       - "8080:8080"
     volumes:
       - academy-data:/app/data
     restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:8080/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 12s
 
 volumes:
   academy-data:
+    name: malo-academy-ledger

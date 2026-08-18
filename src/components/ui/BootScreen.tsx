@@ -8,7 +8,7 @@ export function BootScreen() {
           <Sparkles size={22} />
         </div>
         <div className="font-display mt-5 text-3xl text-gold-2">Malo</div>
-        <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted">Открываем зал</p>
+        <p className="mt-2 text-xs uppercase tracking-[0.24em] text-muted">Открываем зал · пет на :8080</p>
       </div>
     </div>
   );
