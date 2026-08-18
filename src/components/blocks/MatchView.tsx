@@ -7,7 +7,19 @@ function shuffle<T>(arr: T[]) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-export function MatchView({ block, moduleId }: { block: MatchBlock; moduleId: string }) {
+export function MatchView({
+  block,
+  moduleId,
+  silent,
+  onResolved,
+  onReset,
+}: {
+  block: MatchBlock;
+  moduleId?: string;
+  silent?: boolean;
+  onResolved?: (ok: boolean) => void;
+  onReset?: () => void;
+}) {
   const rights = useMemo(() => shuffle(block.pairs.map((p) => p.right)), [block.pairs]);
   const [left, setLeft] = useState<string | null>(null);
   const [links, setLinks] = useState<Record<string, string>>({});
@@ -25,7 +37,8 @@ export function MatchView({ block, moduleId }: { block: MatchBlock; moduleId: st
   function submit() {
     setChecked(true);
     const ok = block.pairs.every((p) => links[p.left] === p.right);
-    if (ok) complete(moduleId, block.title, 28);
+    onResolved?.(ok);
+    if (ok && !silent && moduleId) complete(moduleId, block.title, 28);
   }
 
   return (
@@ -107,6 +120,7 @@ export function MatchView({ block, moduleId }: { block: MatchBlock; moduleId: st
                   setChecked(false);
                   setLinks({});
                   setLeft(null);
+                  onReset?.();
                 }}
                 className="rounded-full border border-white/15 px-4 py-2 text-sm text-muted"
               >

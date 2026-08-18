@@ -28,7 +28,7 @@ export function HomePage() {
             Malo Academy
           </h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-            Продукт-база — Malo Wallet. Плюс гостевые задачи ShopLine, MedQueue, Orient. Играть = контракт, статусы, SQL, ошибки. Квест — живой контур, исход из ваших решений.
+            Квест — живой контур. Четыре продукта. Пишете AC и NFR сами, исход из вашей работы.
           </p>
         </div>
         <div className="glass w-full max-w-sm rounded-3xl p-5">
@@ -79,7 +79,7 @@ export function HomePage() {
           { ok: daily.practice, label: "Практика" },
           { ok: daily.drill, label: "Мини-игра" },
           { ok: daily.lab, label: "Смена в зале" },
-          { ok: daily.quest, label: "Квест Wallet" },
+          { ok: daily.quest, label: "Квест" },
         ].map((q) => (
           <div key={q.label} className={`glass rounded-2xl px-4 py-3 text-sm ${q.ok ? "border-mint/30 text-mint" : "text-muted"}`}>
             {q.ok ? "✓" : "○"} {q.label}
@@ -129,9 +129,9 @@ export function HomePage() {
       <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Link to="/quest" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Radio className="text-rose" size={18} />
-          <div className="font-display mt-3 text-xl">Квест · Malo Wallet</div>
+          <div className="font-display mt-3 text-xl">Квесты · живые продукты</div>
           <p className="mt-2 text-sm text-muted">
-            Живой мок-продукт. Ledger, KYC, 3DS, файл Orient. Исход зависит от работы, не от отдельного теста.
+            Wallet, ShopLine, MedQueue, CityPark. Не только варианты: пишете AC, 409, SMS, NFR. Контур помнит текст.
           </p>
         </Link>
         <Link to="/lab" className="glass rounded-3xl p-5 transition hover:border-gold/30">

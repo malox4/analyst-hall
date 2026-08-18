@@ -5,13 +5,10 @@ import { ACHIEVEMENTS } from "@/content/achievements";
 import { allModules, CURRICULUM } from "@/content/curriculum";
 import {
   applyDelta,
-  emptyQuestMetrics,
-  pickEnding,
-  QUEST_BEATS,
-  QUEST_ENDINGS,
+  endingKey,
+  getQuest,
   resolveNext,
   type QuestChoice,
-  type QuestMetrics,
 } from "@/content/play/quest";
 
 export type ModuleProgress = {
@@ -40,17 +37,22 @@ export type QuestLogEntry = {
   beatId: string;
   choiceId: string;
   why: string;
-  before: QuestMetrics;
-  after: QuestMetrics;
+  before: Record<string, number>;
+  after: Record<string, number>;
+  text?: string;
 };
 
 export type QuestRun = {
+  campaignId: string | null;
   beatId: string | null;
-  metrics: QuestMetrics;
+  metrics: Record<string, number>;
   flags: string[];
   log: QuestLogEntry[];
+  writings: Record<string, string>;
   ending: string | null;
   endings: string[];
+  done: Record<string, string>;
+  scribes: number;
 };
 
 export type ProgressState = {
@@ -78,9 +80,10 @@ export type ProgressState = {
   toggleCheck: (id: string, item: string) => void;
   completeDrill: (moduleId: string, drillId: string, xp: number) => void;
   completeLab: (labId: string, xp: number) => void;
-  startQuest: () => void;
+  startQuest: (campaignId: string) => void;
+  leaveQuest: () => void;
   resetQuest: () => void;
-  resolveQuest: (choice: QuestChoice) => void;
+  resolveQuest: (choice: QuestChoice, writing?: string) => void;
   completeModule: (id: string) => void;
   resetModule: (id: string) => void;
   markInterview: (id: string) => void;
@@ -110,14 +113,18 @@ function emptyDaily(day = todayKey()): DailyQuests {
   return { day, quiz: false, practice: false, drill: false, lab: false, quest: false };
 }
 
-export function emptyQuestRun(endings: string[] = []): QuestRun {
+export function emptyQuestRun(endings: string[] = [], done: Record<string, string> = {}, scribes = 0): QuestRun {
   return {
+    campaignId: null,
     beatId: null,
-    metrics: emptyQuestMetrics(),
+    metrics: {},
     flags: [],
     log: [],
+    writings: {},
     ending: null,
     endings,
+    done,
+    scribes,
   };
 }
 
@@ -260,24 +267,52 @@ export const useProgress = create<ProgressState>()(
             lastXpGain: { amount: xp, at: Date.now() },
           };
         }),
-      startQuest: () =>
+      startQuest: (campaignId) =>
+        set((s) => {
+          const camp = getQuest(campaignId);
+          if (!camp) return s;
+          const q = s.quest ?? emptyQuestRun();
+          if (q.campaignId === campaignId && q.beatId) return s;
+          return {
+            quest: {
+              ...emptyQuestRun(q.endings, q.done ?? {}, q.scribes ?? 0),
+              campaignId,
+              beatId: camp.startBeat,
+              metrics: camp.emptyMetrics(),
+            },
+          };
+        }),
+      leaveQuest: () =>
         set((s) => {
           const q = s.quest ?? emptyQuestRun();
-          if (q.beatId && !q.ending) return s;
-          return { quest: { ...emptyQuestRun(q.endings), beatId: "q1" } };
+          return { quest: emptyQuestRun(q.endings, q.done ?? {}, q.scribes ?? 0) };
         }),
       resetQuest: () =>
-        set((s) => ({
-          quest: { ...emptyQuestRun(s.quest?.endings ?? []), beatId: "q1" },
-        })),
-      resolveQuest: (choice) =>
+        set((s) => {
+          const q = s.quest ?? emptyQuestRun();
+          const camp = getQuest(q.campaignId);
+          if (!camp) return { quest: emptyQuestRun(q.endings, q.done ?? {}, q.scribes ?? 0) };
+          return {
+            quest: {
+              ...emptyQuestRun(q.endings, q.done ?? {}, q.scribes ?? 0),
+              campaignId: camp.id,
+              beatId: camp.startBeat,
+              metrics: camp.emptyMetrics(),
+            },
+          };
+        }),
+      resolveQuest: (choice, writing) =>
         set((s) => {
           const q = s.quest ?? emptyQuestRun();
           if (!q.beatId || q.ending) return s;
-          const beat = QUEST_BEATS[q.beatId];
-          if (!beat) return s;
+          const camp = getQuest(q.campaignId);
+          const beat = camp?.beats[q.beatId];
+          if (!camp || !beat) return s;
           const applied = applyDelta(q.metrics, q.flags, choice.delta);
           const nextId = resolveNext(choice.next, applied.flags);
+          const writings = { ...(q.writings ?? {}) };
+          if (writing?.trim()) writings[beat.id] = writing.trim();
+          const scribes = (q.scribes ?? 0) + (writing?.trim() ? 1 : 0);
           const log: QuestLogEntry[] = [
             ...q.log,
             {
@@ -286,23 +321,35 @@ export const useProgress = create<ProgressState>()(
               why: choice.why,
               before: q.metrics,
               after: applied.metrics,
+              text: writing?.trim() || undefined,
             },
           ];
           const day = todayKey();
           const daily = { ...(s.daily?.day === day ? s.daily : emptyDaily(day)), quest: true };
+          const base = {
+            campaignId: camp.id,
+            metrics: applied.metrics,
+            flags: applied.flags,
+            log,
+            writings,
+            scribes,
+            endings: q.endings,
+            done: q.done ?? {},
+          };
           if (nextId === "end") {
-            const endingId = pickEnding(applied.metrics, applied.flags);
-            const ending = QUEST_ENDINGS[endingId];
+            const endingId = camp.pickEnding(applied.metrics, applied.flags);
+            const ending = camp.endings[endingId];
             const gain = ending?.xp ?? 60;
-            const endings = q.endings.includes(endingId) ? q.endings : [...q.endings, endingId];
+            const key = endingKey(camp.id, endingId);
+            const endings = q.endings.includes(key) ? q.endings : [...q.endings, key];
+            const done = { ...(q.done ?? {}), [camp.id]: endingId };
             return {
               quest: {
+                ...base,
                 beatId: beat.id,
-                metrics: applied.metrics,
-                flags: applied.flags,
-                log,
                 ending: endingId,
                 endings,
+                done,
               },
               xp: s.xp + gain,
               daily,
@@ -310,14 +357,7 @@ export const useProgress = create<ProgressState>()(
             };
           }
           return {
-            quest: {
-              beatId: nextId,
-              metrics: applied.metrics,
-              flags: applied.flags,
-              log,
-              ending: null,
-              endings: q.endings,
-            },
+            quest: { ...base, beatId: nextId, ending: null },
             daily,
           };
         }),
@@ -376,7 +416,13 @@ export const useProgress = create<ProgressState>()(
           if (a.id === "lab-first" && Object.keys(s.labs ?? {}).length >= 1) toUnlock.push(a.id);
           if (a.id === "lab-master" && Object.keys(s.labs ?? {}).length >= 8) toUnlock.push(a.id);
           if (a.id === "quest-end" && (s.quest?.endings?.length ?? 0) >= 1) toUnlock.push(a.id);
-          if (a.id === "quest-clean" && (s.quest?.endings ?? []).includes("clean-ship")) toUnlock.push(a.id);
+          if (
+            a.id === "quest-clean" &&
+            (s.quest?.endings ?? []).some((e) => e === "clean-ship" || e === "wallet:clean-ship")
+          )
+            toUnlock.push(a.id);
+          if (a.id === "quest-world" && Object.keys(s.quest?.done ?? {}).length >= 3) toUnlock.push(a.id);
+          if (a.id === "quest-scribe" && (s.quest?.scribes ?? 0) >= 3) toUnlock.push(a.id);
           if (a.id === "streak-3" && (s.streak ?? 0) >= 3) toUnlock.push(a.id);
           if (a.id === "streak-7" && (s.streak ?? 0) >= 7) toUnlock.push(a.id);
           if (a.id === "combo-5" && (s.combo ?? 0) >= 5) toUnlock.push(a.id);
@@ -406,10 +452,17 @@ export const useProgress = create<ProgressState>()(
           quest: {
             ...emptyQuestRun(),
             ...(p.quest ?? {}),
-            metrics: { ...emptyQuestMetrics(), ...(p.quest?.metrics ?? {}) },
+            campaignId: p.quest?.campaignId ?? (p.quest?.beatId ? "wallet" : null),
+            metrics: {
+              ...(getQuest(p.quest?.campaignId ?? (p.quest?.beatId ? "wallet" : null))?.emptyMetrics() ?? {}),
+              ...(p.quest?.metrics ?? {}),
+            },
             flags: p.quest?.flags ?? [],
             log: p.quest?.log ?? [],
+            writings: p.quest?.writings ?? {},
             endings: p.quest?.endings ?? [],
+            done: p.quest?.done ?? {},
+            scribes: p.quest?.scribes ?? 0,
           },
           daily: { ...emptyDaily(p.daily?.day ?? ""), ...(p.daily ?? {}), quest: p.daily?.quest ?? false },
           combo: p.combo ?? 0,

@@ -65,7 +65,7 @@ export function ProfilePage() {
           <Stat label="Практики" value={String(works)} />
           <Stat label="Серия" value={`${streak} дн.`} />
           <Stat label="Миссии зала" value={String(Object.keys(labs).length)} />
-          <Stat label="Исходы квеста" value={String(quest?.endings?.length ?? 0)} />
+          <Stat label="Исходы квеста" value={`${Object.keys(quest?.done ?? {}).length}/4`} />
         </div>
       </div>
       <div className="mt-6 space-y-4">

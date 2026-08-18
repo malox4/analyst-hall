@@ -51,6 +51,7 @@ export default function App() {
           <Route path="/lab" element={<LabListPage />} />
           <Route path="/lab/:labId" element={<LabMissionPage />} />
           <Route path="/quest" element={<QuestPage />} />
+          <Route path="/quest/:questId" element={<QuestPage />} />
           <Route path="/interview" element={<InterviewPage />} />
           <Route path="/exam" element={<ExamPage />} />
           <Route path="/achievements" element={<AchievementsPage />} />
