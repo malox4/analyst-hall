@@ -3,7 +3,19 @@ import type { SpotBlock } from "@/types/content";
 import { useProgress } from "@/stores/progressStore";
 import { cn } from "@/lib/cn";
 
-export function SpotView({ block, moduleId }: { block: SpotBlock; moduleId: string }) {
+export function SpotView({
+  block,
+  moduleId,
+  silent,
+  onResolved,
+  onReset,
+}: {
+  block: SpotBlock;
+  moduleId?: string;
+  silent?: boolean;
+  onResolved?: (ok: boolean) => void;
+  onReset?: () => void;
+}) {
   const [mark, setMark] = useState<Record<string, boolean>>({});
   const [checked, setChecked] = useState(false);
   const complete = useProgress((s) => s.completeDrill);
@@ -21,7 +33,8 @@ export function SpotView({ block, moduleId }: { block: SpotBlock; moduleId: stri
   function submit() {
     setChecked(true);
     const ok = block.lines.every((l) => Boolean(mark[l.id]) === l.bad);
-    if (ok) complete(moduleId, block.title, 34);
+    onResolved?.(ok);
+    if (ok && !silent && moduleId) complete(moduleId, block.title, 34);
   }
 
   return (
@@ -86,7 +99,7 @@ export function SpotView({ block, moduleId }: { block: SpotBlock; moduleId: stri
           <>
             <div className={perfect ? "text-mint" : "text-rose"}>
               {hits}/{block.lines.length}
-              {perfect ? " · чисто · +XP" : " · ещё не чисто"}
+              {perfect ? (silent ? " · чисто" : " · чисто · +XP") : " · ещё не чисто"}
             </div>
             {!perfect && (
               <button
@@ -94,6 +107,7 @@ export function SpotView({ block, moduleId }: { block: SpotBlock; moduleId: stri
                 onClick={() => {
                   setChecked(false);
                   setMark({});
+                  onReset?.();
                 }}
                 className="rounded-full border border-white/15 px-4 py-2 text-sm text-muted"
               >

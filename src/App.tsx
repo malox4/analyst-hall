@@ -10,6 +10,7 @@ import { ExamPage } from "@/pages/ExamPage";
 import { AchievementsPage } from "@/pages/AchievementsPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { LabListPage, LabMissionPage } from "@/pages/LabPage";
+import { QuestPage } from "@/pages/QuestPage";
 import { useEffect, useState } from "react";
 import { useProgress } from "@/stores/progressStore";
 import { BootScreen } from "@/components/ui/BootScreen";
@@ -22,6 +23,7 @@ export default function App() {
   const interviewSeen = useProgress((s) => s.interviewSeen);
   const examBest = useProgress((s) => s.examBest);
   const labs = useProgress((s) => s.labs);
+  const quest = useProgress((s) => s.quest);
   const streak = useProgress((s) => s.streak);
   const combo = useProgress((s) => s.combo);
   const [ready, setReady] = useState(() => useProgress.persist.hasHydrated());
@@ -34,7 +36,7 @@ export default function App() {
 
   useEffect(() => {
     if (ready) evaluateBadges();
-  }, [evaluateBadges, xp, modules, interviewSeen, examBest, labs, streak, combo, ready]);
+  }, [evaluateBadges, xp, modules, interviewSeen, examBest, labs, quest, streak, combo, ready]);
 
   if (!ready) return <BootScreen />;
 
@@ -48,6 +50,7 @@ export default function App() {
           <Route path="/module/:moduleId" element={<ModulePage />} />
           <Route path="/lab" element={<LabListPage />} />
           <Route path="/lab/:labId" element={<LabMissionPage />} />
+          <Route path="/quest" element={<QuestPage />} />
           <Route path="/interview" element={<InterviewPage />} />
           <Route path="/exam" element={<ExamPage />} />
           <Route path="/achievements" element={<AchievementsPage />} />

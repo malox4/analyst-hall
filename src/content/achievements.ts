@@ -11,6 +11,8 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: "drill-12", title: "Тренажёр", description: "Закройте 12 мини-игр.", icon: "swords", xp: 70 },
   { id: "lab-first", title: "Первая смена", description: "Пройдите миссию в зале практики.", icon: "briefcase", xp: 40 },
   { id: "lab-master", title: "Ночная смена", description: "Закройте 8 миссий зала.", icon: "moon", xp: 120 },
+  { id: "quest-end", title: "Смена на контуре", description: "Доведите квест Malo Wallet до любого исхода.", icon: "radio", xp: 50 },
+  { id: "quest-clean", title: "Чистый контур", description: "Выкатите Wallet с ключом и честными статусами.", icon: "shield", xp: 90 },
   { id: "streak-3", title: "Три дня в зале", description: "Заходите три дня подряд.", icon: "calendar", xp: 30 },
   { id: "streak-7", title: "Неделя аналитика", description: "Серия 7 дней.", icon: "flame", xp: 70 },
   { id: "combo-5", title: "Серия ударов", description: "5 верных решений подряд.", icon: "zap", xp: 40 },

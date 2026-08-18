@@ -3,6 +3,16 @@ import { persist } from "zustand/middleware";
 import type { TrackMode } from "@/types/content";
 import { ACHIEVEMENTS } from "@/content/achievements";
 import { allModules, CURRICULUM } from "@/content/curriculum";
+import {
+  applyDelta,
+  emptyQuestMetrics,
+  pickEnding,
+  QUEST_BEATS,
+  QUEST_ENDINGS,
+  resolveNext,
+  type QuestChoice,
+  type QuestMetrics,
+} from "@/content/play/quest";
 
 export type ModuleProgress = {
   started: boolean;
@@ -23,6 +33,24 @@ export type DailyQuests = {
   practice: boolean;
   drill: boolean;
   lab: boolean;
+  quest: boolean;
+};
+
+export type QuestLogEntry = {
+  beatId: string;
+  choiceId: string;
+  why: string;
+  before: QuestMetrics;
+  after: QuestMetrics;
+};
+
+export type QuestRun = {
+  beatId: string | null;
+  metrics: QuestMetrics;
+  flags: string[];
+  log: QuestLogEntry[];
+  ending: string | null;
+  endings: string[];
 };
 
 export type ProgressState = {
@@ -34,6 +62,7 @@ export type ProgressState = {
   lastActiveDay: string;
   labs: Record<string, boolean>;
   daily: DailyQuests;
+  quest: QuestRun;
   modules: Record<string, ModuleProgress>;
   badges: string[];
   interviewSeen: string[];
@@ -49,6 +78,9 @@ export type ProgressState = {
   toggleCheck: (id: string, item: string) => void;
   completeDrill: (moduleId: string, drillId: string, xp: number) => void;
   completeLab: (labId: string, xp: number) => void;
+  startQuest: () => void;
+  resetQuest: () => void;
+  resolveQuest: (choice: QuestChoice) => void;
   completeModule: (id: string) => void;
   resetModule: (id: string) => void;
   markInterview: (id: string) => void;
@@ -75,7 +107,18 @@ function todayKey() {
 }
 
 function emptyDaily(day = todayKey()): DailyQuests {
-  return { day, quiz: false, practice: false, drill: false, lab: false };
+  return { day, quiz: false, practice: false, drill: false, lab: false, quest: false };
+}
+
+export function emptyQuestRun(endings: string[] = []): QuestRun {
+  return {
+    beatId: null,
+    metrics: emptyQuestMetrics(),
+    flags: [],
+    log: [],
+    ending: null,
+    endings,
+  };
 }
 
 function bumpCombo(combo: number, ok: boolean) {
@@ -106,6 +149,7 @@ export const useProgress = create<ProgressState>()(
       lastActiveDay: "",
       labs: {},
       daily: emptyDaily(""),
+      quest: emptyQuestRun(),
       modules: {},
       badges: [],
       interviewSeen: [],
@@ -216,6 +260,67 @@ export const useProgress = create<ProgressState>()(
             lastXpGain: { amount: xp, at: Date.now() },
           };
         }),
+      startQuest: () =>
+        set((s) => {
+          const q = s.quest ?? emptyQuestRun();
+          if (q.beatId && !q.ending) return s;
+          return { quest: { ...emptyQuestRun(q.endings), beatId: "q1" } };
+        }),
+      resetQuest: () =>
+        set((s) => ({
+          quest: { ...emptyQuestRun(s.quest?.endings ?? []), beatId: "q1" },
+        })),
+      resolveQuest: (choice) =>
+        set((s) => {
+          const q = s.quest ?? emptyQuestRun();
+          if (!q.beatId || q.ending) return s;
+          const beat = QUEST_BEATS[q.beatId];
+          if (!beat) return s;
+          const applied = applyDelta(q.metrics, q.flags, choice.delta);
+          const nextId = resolveNext(choice.next, applied.flags);
+          const log: QuestLogEntry[] = [
+            ...q.log,
+            {
+              beatId: beat.id,
+              choiceId: choice.id,
+              why: choice.why,
+              before: q.metrics,
+              after: applied.metrics,
+            },
+          ];
+          const day = todayKey();
+          const daily = { ...(s.daily?.day === day ? s.daily : emptyDaily(day)), quest: true };
+          if (nextId === "end") {
+            const endingId = pickEnding(applied.metrics, applied.flags);
+            const ending = QUEST_ENDINGS[endingId];
+            const gain = ending?.xp ?? 60;
+            const endings = q.endings.includes(endingId) ? q.endings : [...q.endings, endingId];
+            return {
+              quest: {
+                beatId: beat.id,
+                metrics: applied.metrics,
+                flags: applied.flags,
+                log,
+                ending: endingId,
+                endings,
+              },
+              xp: s.xp + gain,
+              daily,
+              lastXpGain: { amount: gain, at: Date.now() },
+            };
+          }
+          return {
+            quest: {
+              beatId: nextId,
+              metrics: applied.metrics,
+              flags: applied.flags,
+              log,
+              ending: null,
+              endings: q.endings,
+            },
+            daily,
+          };
+        }),
       completeModule: (id) =>
         set((s) => {
           const modules = { ...s.modules };
@@ -270,6 +375,8 @@ export const useProgress = create<ProgressState>()(
             toUnlock.push(a.id);
           if (a.id === "lab-first" && Object.keys(s.labs ?? {}).length >= 1) toUnlock.push(a.id);
           if (a.id === "lab-master" && Object.keys(s.labs ?? {}).length >= 8) toUnlock.push(a.id);
+          if (a.id === "quest-end" && (s.quest?.endings?.length ?? 0) >= 1) toUnlock.push(a.id);
+          if (a.id === "quest-clean" && (s.quest?.endings ?? []).includes("clean-ship")) toUnlock.push(a.id);
           if (a.id === "streak-3" && (s.streak ?? 0) >= 3) toUnlock.push(a.id);
           if (a.id === "streak-7" && (s.streak ?? 0) >= 7) toUnlock.push(a.id);
           if (a.id === "combo-5" && (s.combo ?? 0) >= 5) toUnlock.push(a.id);
@@ -296,7 +403,15 @@ export const useProgress = create<ProgressState>()(
           ...p,
           modules,
           labs: p.labs ?? {},
-          daily: p.daily ?? emptyDaily(""),
+          quest: {
+            ...emptyQuestRun(),
+            ...(p.quest ?? {}),
+            metrics: { ...emptyQuestMetrics(), ...(p.quest?.metrics ?? {}) },
+            flags: p.quest?.flags ?? [],
+            log: p.quest?.log ?? [],
+            endings: p.quest?.endings ?? [],
+          },
+          daily: { ...emptyDaily(p.daily?.day ?? ""), ...(p.daily ?? {}), quest: p.daily?.quest ?? false },
           combo: p.combo ?? 0,
           streak: p.streak ?? 0,
           lastActiveDay: p.lastActiveDay ?? "",

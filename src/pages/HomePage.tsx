@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Compass, Lock, Sparkles, Swords, Unlock } from "lucide-react";
+import { ArrowRight, Compass, Lock, Radio, Sparkles, Swords, Unlock } from "lucide-react";
 import { CURRICULUM } from "@/content/curriculum";
 import { PageMotion } from "@/components/ui/PageMotion";
 import { Pill } from "@/components/ui/Pill";
@@ -16,7 +16,7 @@ export function HomePage() {
   const xp = useProgress((s) => s.xp);
   const overall = overallProgress();
   const streak = useProgress((s) => s.streak) ?? 0;
-  const daily = useProgress((s) => s.daily) ?? { quiz: false, practice: false, drill: false, lab: false, day: "" };
+  const daily = useProgress((s) => s.daily) ?? { quiz: false, practice: false, drill: false, lab: false, quest: false, day: "" };
   const rank = learnerRank(xp);
 
   return (
@@ -28,7 +28,7 @@ export function HomePage() {
             Malo Academy
           </h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-muted md:text-lg">
-            Продукт-база — Malo Wallet. Плюс гостевые задачи ShopLine, MedQueue, Orient. Играть = контракт, статусы, SQL, ошибки. Не бесконечный поиск need.
+            Продукт-база — Malo Wallet. Плюс гостевые задачи ShopLine, MedQueue, Orient. Играть = контракт, статусы, SQL, ошибки. Квест — живой контур, исход из ваших решений.
           </p>
         </div>
         <div className="glass w-full max-w-sm rounded-3xl p-5">
@@ -73,12 +73,13 @@ export function HomePage() {
         </span>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-4">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {[
           { ok: daily.quiz, label: "Квиз дня" },
           { ok: daily.practice, label: "Практика" },
           { ok: daily.drill, label: "Мини-игра" },
           { ok: daily.lab, label: "Смена в зале" },
+          { ok: daily.quest, label: "Квест Wallet" },
         ].map((q) => (
           <div key={q.label} className={`glass rounded-2xl px-4 py-3 text-sm ${q.ok ? "border-mint/30 text-mint" : "text-muted"}`}>
             {q.ok ? "✓" : "○"} {q.label}
@@ -125,7 +126,14 @@ export function HomePage() {
         })}
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Link to="/quest" className="glass rounded-3xl p-5 transition hover:border-gold/30">
+          <Radio className="text-rose" size={18} />
+          <div className="font-display mt-3 text-xl">Квест · Malo Wallet</div>
+          <p className="mt-2 text-sm text-muted">
+            Живой мок-продукт. Ledger, KYC, 3DS, файл Orient. Исход зависит от работы, не от отдельного теста.
+          </p>
+        </Link>
         <Link to="/lab" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Swords className="text-rose" size={18} />
           <div className="font-display mt-3 text-xl">Зал практики</div>

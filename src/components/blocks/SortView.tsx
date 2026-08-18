@@ -3,11 +3,23 @@ import type { SortBlock } from "@/types/content";
 import { useProgress } from "@/stores/progressStore";
 import { cn } from "@/lib/cn";
 
-export function SortView({ block, moduleId }: { block: SortBlock; moduleId: string }) {
+export function SortView({
+  block,
+  moduleId,
+  silent,
+  onResolved,
+  onReset,
+}: {
+  block: SortBlock;
+  moduleId?: string;
+  silent?: boolean;
+  onResolved?: (ok: boolean) => void;
+  onReset?: () => void;
+}) {
   const [place, setPlace] = useState<Record<string, string>>({});
   const [checked, setChecked] = useState(false);
   const complete = useProgress((s) => s.completeDrill);
-  const done = useProgress((s) => s.modules[moduleId]?.drills?.[block.title]);
+  const done = useProgress((s) => (moduleId ? s.modules[moduleId]?.drills?.[block.title] : undefined));
 
   const allIn = block.items.every((i) => place[i.id]);
   const score = useMemo(() => {
@@ -28,7 +40,8 @@ export function SortView({ block, moduleId }: { block: SortBlock; moduleId: stri
   function submit() {
     setChecked(true);
     const ok = block.items.every((i) => place[i.id] === i.bucket);
-    if (ok) complete(moduleId, block.title, 30);
+    onResolved?.(ok);
+    if (ok && !silent && moduleId) complete(moduleId, block.title, 30);
   }
 
   return (
@@ -89,7 +102,7 @@ export function SortView({ block, moduleId }: { block: SortBlock; moduleId: stri
           <>
             <div className={score === block.items.length ? "text-mint" : "text-rose"}>
               {score}/{block.items.length}
-              {score === block.items.length || done ? " · +XP" : " · поправьте карты"}
+              {score === block.items.length || done ? (silent ? " · чисто" : " · +XP") : " · поправьте карты"}
             </div>
             {score < block.items.length && (
               <button
@@ -97,6 +110,7 @@ export function SortView({ block, moduleId }: { block: SortBlock; moduleId: stri
                 onClick={() => {
                   setChecked(false);
                   setPlace({});
+                  onReset?.();
                 }}
                 className="rounded-full border border-white/15 px-4 py-2 text-sm text-muted"
               >

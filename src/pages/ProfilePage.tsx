@@ -16,6 +16,7 @@ export function ProfilePage() {
   const examBest = useProgress((s) => s.examBest);
   const streak = useProgress((s) => s.streak) ?? 0;
   const labs = useProgress((s) => s.labs) ?? {};
+  const quest = useProgress((s) => s.quest);
   const rank = learnerRank(xp);
   const [works, setWorks] = useState(0);
 
@@ -64,6 +65,7 @@ export function ProfilePage() {
           <Stat label="Практики" value={String(works)} />
           <Stat label="Серия" value={`${streak} дн.`} />
           <Stat label="Миссии зала" value={String(Object.keys(labs).length)} />
+          <Stat label="Исходы квеста" value={String(quest?.endings?.length ?? 0)} />
         </div>
       </div>
       <div className="mt-6 space-y-4">

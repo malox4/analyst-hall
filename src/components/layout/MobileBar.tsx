@@ -1,13 +1,13 @@
 import { NavLink } from "react-router-dom";
-import { Award, Map, Mic2, ScrollText, Swords, UserRound } from "lucide-react";
+import { Map, Mic2, Radio, ScrollText, Swords, UserRound } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const links = [
   { to: "/", label: "Путь", icon: Map, end: true },
   { to: "/lab", label: "Зал", icon: Swords },
+  { to: "/quest", label: "Квест", icon: Radio },
   { to: "/interview", label: "Собес", icon: Mic2 },
   { to: "/exam", label: "Экзамен", icon: ScrollText },
-  { to: "/achievements", label: "Печати", icon: Award },
   { to: "/profile", label: "Я", icon: UserRound },
 ];
 
