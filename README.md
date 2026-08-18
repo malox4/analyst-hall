@@ -26,6 +26,8 @@ npm install
 npm run dev
 ```
 
+Откройте [http://localhost:8080](http://localhost:8080) — тот же порт, что у Docker.
+
 Сборка статики:
 
 ```bash
