@@ -7,9 +7,11 @@
 - **LocalStorage** — путь, XP, бейджи, квизы, режим линейный/свободный
 - **IndexedDB** — тексты практических работ
 
-Авторизации и бэкенда нет. Можно открыть через `npm run dev` или раздать папку `dist`.
+Авторизации нет. Прогресс — в браузере (LocalStorage). Живой пет `/api/v1` есть в `npm run dev` и в Docker.
 
 ## Docker
+
+Контейнер отдаёт академию **и** core-banking API (проводки, холд, IBAN, FX). Состояние пета лежит в volume `academy-data`.
 
 ```bash
 docker compose up --build
@@ -17,7 +19,14 @@ docker compose up --build
 
 Откройте [http://localhost:8080](http://localhost:8080).
 
-Остановка: `docker compose down`.
+```bash
+curl -sS http://localhost:8080/api/health
+curl -sS http://localhost:8080/api/v1/wallets
+```
+
+Консоль пета: [/pet](http://localhost:8080/pet) · справочник: [/book](http://localhost:8080/book)
+
+Остановка: `docker compose down`. Volume с ledger не трогает `down` без `-v`.
 
 ## Локальный запуск без Docker
 
@@ -39,11 +48,17 @@ curl -sS -X POST http://localhost:8080/api/v1/transfers \
 
 Спека: [http://localhost:8080/api/v1/openapi.json](http://localhost:8080/api/v1/openapi.json) · консоль: [/pet](http://localhost:8080/pet)
 
-Сборка статики:
+Сборка статики (пет API в preview тоже живой — Vite middleware):
 
 ```bash
 npm run build
 npm run preview
+```
+
+Либо после `npm run build`:
+
+```bash
+node server/serve.mjs
 ```
 
 ## Стек
