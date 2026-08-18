@@ -11,6 +11,7 @@ import { AchievementsPage } from "@/pages/AchievementsPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 import { LabListPage, LabMissionPage } from "@/pages/LabPage";
 import { QuestPage } from "@/pages/QuestPage";
+import { PetPage } from "@/pages/PetPage";
 import { useEffect, useState } from "react";
 import { useProgress } from "@/stores/progressStore";
 import { BootScreen } from "@/components/ui/BootScreen";
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/lab/:labId" element={<LabMissionPage />} />
           <Route path="/quest" element={<QuestPage />} />
           <Route path="/quest/:questId" element={<QuestPage />} />
+          <Route path="/pet" element={<PetPage />} />
           <Route path="/interview" element={<InterviewPage />} />
           <Route path="/exam" element={<ExamPage />} />
           <Route path="/achievements" element={<AchievementsPage />} />

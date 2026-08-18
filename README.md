@@ -28,6 +28,17 @@ npm run dev
 
 Откройте [http://localhost:8080](http://localhost:8080) — тот же порт, что у Docker.
 
+Живой пет API (Postman / curl / встроенная консоль):
+
+```bash
+curl -sS http://localhost:8080/api/v1/wallets
+curl -sS -X POST http://localhost:8080/api/v1/transfers \
+  -H 'Content-Type: application/json' \
+  -d '{"fromWalletId":"wal_anna","toWalletId":"wal_boris","amount":5000,"currency":"UZS"}'
+```
+
+Спека: [http://localhost:8080/api/v1/openapi.json](http://localhost:8080/api/v1/openapi.json) · консоль: [/pet](http://localhost:8080/pet)
+
 Сборка статики:
 
 ```bash

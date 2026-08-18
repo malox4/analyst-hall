@@ -423,6 +423,8 @@ export const useProgress = create<ProgressState>()(
             toUnlock.push(a.id);
           if (a.id === "quest-world" && Object.keys(s.quest?.done ?? {}).length >= 3) toUnlock.push(a.id);
           if (a.id === "quest-scribe" && (s.quest?.scribes ?? 0) >= 3) toUnlock.push(a.id);
+          if (a.id === "pet-live" && Object.keys(s.modules["pet-wallet"]?.drills ?? {}).length >= 1) toUnlock.push(a.id);
+          if (a.id === "pet-fix" && s.modules["pet-wallet"]?.drills?.contractShipped) toUnlock.push(a.id);
           if (a.id === "streak-3" && (s.streak ?? 0) >= 3) toUnlock.push(a.id);
           if (a.id === "streak-7" && (s.streak ?? 0) >= 7) toUnlock.push(a.id);
           if (a.id === "combo-5" && (s.combo ?? 0) >= 5) toUnlock.push(a.id);

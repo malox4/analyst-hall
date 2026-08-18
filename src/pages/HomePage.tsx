@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Compass, Lock, Radio, Sparkles, Swords, Unlock } from "lucide-react";
+import { ArrowRight, Cable, Compass, Lock, Radio, Sparkles, Swords, Unlock } from "lucide-react";
 import { CURRICULUM } from "@/content/curriculum";
 import { PageMotion } from "@/components/ui/PageMotion";
 import { Pill } from "@/components/ui/Pill";
@@ -127,6 +127,13 @@ export function HomePage() {
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Link to="/pet" className="glass rounded-3xl p-5 transition hover:border-gold/30">
+          <Cable className="text-rose" size={18} />
+          <div className="font-display mt-3 text-xl">API · живой пет</div>
+          <p className="mt-2 text-sm text-muted">
+            Postman/Swagger на localhost:8080/api/v1. Двойной POST пишет ledger. PUT /contract меняет продукт.
+          </p>
+        </Link>
         <Link to="/quest" className="glass rounded-3xl p-5 transition hover:border-gold/30">
           <Radio className="text-rose" size={18} />
           <div className="font-display mt-3 text-xl">Квесты · живые продукты</div>
