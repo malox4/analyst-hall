@@ -8,7 +8,7 @@ import { handleApi } from "./malo-api.mjs";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = process.env.DIST_DIR ? path.resolve(process.env.DIST_DIR) : path.join(ROOT, "dist");
 const PORT = Number(process.env.PORT || 8080);
-const HOST = process.env.HOST || "0.0.0.0";
+const HOST = process.env.HOST || "::";
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
