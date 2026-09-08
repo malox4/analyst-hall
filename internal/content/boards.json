@@ -2,7 +2,7 @@
   {
     "id": "hold-capture",
     "title": "Холд не проводка",
-    "teaser": "Auth уменьшает available. Ledger молчит, пока не capture.",
+    "teaser": "Auth режет available. Ledger молчит, пока не capture.",
     "grade": "Intern",
     "plan": "free",
     "minutes": 4,
@@ -55,7 +55,7 @@
         }
       ]
     },
-    "why": "Касса орёт «успех». Денег мерчанта нет, пока нет двух ног. Холд уменьшает available и не пишет журнал.",
+    "why": "Касса орёт «успех». Денег мерчанта нет, пока нет двух ног. Hold режет available и не пишет журнал.",
     "facts": [
       "Auth → hold OPEN, ledger пуст.",
       "Capture → DR клиент, CR кафе, hold закрыт.",

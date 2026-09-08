@@ -95,11 +95,7 @@ async function saveBrief() {
     <h1 class="font-display mt-2 text-4xl leading-[0.95] md:text-6xl">{{ lesson.title }}</h1>
     <p class="mt-4 max-w-2xl text-[17px] leading-7 text-mute">{{ lesson.teaser }}</p>
 
-    <PrimerArticle v-if="primer" class="mt-8" :primer="primer">
-      <template #drill>
-        <p class="text-sm text-mute">Ниже — доска и стол. Ошибка хода показывает почему. Дальше не запирается.</p>
-      </template>
-    </PrimerArticle>
+    <PrimerArticle v-if="primer" class="mt-8" :primer="primer" part="head" />
 
     <div class="mt-8 grid items-start gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.9fr)]">
       <div class="space-y-5">
@@ -122,6 +118,12 @@ async function saveBrief() {
       </div>
       <BriefingPanel :why="lesson.why" :facts="lesson.facts" :scene="lesson.scene" :trap="lesson.trap" />
     </div>
+
+    <PrimerArticle v-if="primer" class="mt-10" :primer="primer" part="rest">
+      <template #drill>
+        <p class="text-sm text-mute">Стол выше двигает доску. Ошибка хода показывает почему. Дальше не запирается.</p>
+      </template>
+    </PrimerArticle>
 
     <div class="sticky bottom-20 z-10 mt-10 flex items-center justify-between gap-3 rounded-2xl bg-ink p-4 text-white md:bottom-6">
       <p class="text-sm text-white/60">Стол двигает доску. Дальше открыто всегда.</p>

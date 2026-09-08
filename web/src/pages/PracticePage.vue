@@ -305,12 +305,7 @@ function scrollCluster(id) {
       <div v-if="labTopic" class="mt-4 flex flex-wrap gap-3 text-sm">
         <RouterLink :to="'/materials/' + labTopic.id" class="font-medium text-accent">Статья: {{ labTopic.title }} →</RouterLink>
       </div>
-      <PrimerArticle v-if="labPrimer" class="mt-6" :primer="labPrimer">
-        <template #drill>
-          <p class="text-sm text-mute">Дальше — стол лабы. Неверный ход показывает почему. Переход не запирается.</p>
-          <RouterLink v-if="labTopic" :to="'/materials/' + labTopic.id" class="mt-3 inline-block text-sm text-accent">← К статье</RouterLink>
-        </template>
-      </PrimerArticle>
+      <PrimerArticle v-if="labPrimer" class="mt-6" :primer="labPrimer" part="head" />
       <div v-if="lab" class="flex flex-wrap gap-2">
         <button
           v-for="(b, i) in lab.blocks"
@@ -327,6 +322,12 @@ function scrollCluster(id) {
         <BoardView v-if="board" :board="board" :fx="fx" />
         <DeskView v-if="desk" :desk="desk" @play="onPlay" />
       </div>
+      <PrimerArticle v-if="labPrimer" class="mt-10" :primer="labPrimer" part="rest">
+        <template #drill>
+          <p class="text-sm text-mute">Стол выше. Неверный ход показывает почему. Переход не запирается.</p>
+          <RouterLink v-if="labTopic" :to="'/materials/' + labTopic.id" class="mt-3 inline-block text-sm text-accent">← К статье</RouterLink>
+        </template>
+      </PrimerArticle>
     </div>
   </div>
 </template>
