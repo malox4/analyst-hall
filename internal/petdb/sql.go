@@ -8,8 +8,14 @@ import (
 	"time"
 )
 
+func trimSQL(sqlText string) string {
+	s := strings.TrimSpace(stripSQLComments(sqlText))
+	s = strings.TrimRight(s, "; \t\n\r")
+	return strings.TrimSpace(s)
+}
+
 func execSelect(sqlText string, tables map[string][]map[string]any) ([]string, []map[string]any, error) {
-	s := strings.TrimSpace(strings.TrimSuffix(stripSQLComments(sqlText), ";"))
+	s := trimSQL(sqlText)
 	s = strings.ReplaceAll(s, "\n", " ")
 	s = strings.ReplaceAll(s, "\r", " ")
 	s = strings.ReplaceAll(s, "\t", " ")
@@ -188,7 +194,7 @@ func fromJoin(fromPart string, tables map[string][]map[string]any) ([]map[string
 	if len(first) == 0 {
 		return nil, fmt.Errorf("пустой FROM")
 	}
-	t0 := strings.Trim(strings.ToLower(first[0]), ",")
+	t0 := strings.Trim(strings.ToLower(first[0]), ",;`\"")
 	a0 := t0
 	if len(first) >= 2 && strings.ToLower(first[1]) == "as" && len(first) >= 3 {
 		a0 = strings.ToLower(first[2])
@@ -205,7 +211,7 @@ func fromJoin(fromPart string, tables map[string][]map[string]any) ([]map[string
 		head := strings.TrimSpace(ch[:onIdx])
 		on := strings.TrimSpace(ch[onIdx+4:])
 		fs := strings.Fields(head)
-		tb := strings.ToLower(fs[0])
+		tb := strings.Trim(strings.ToLower(fs[0]), ",;`\"")
 		al := tb
 		if len(fs) >= 3 && strings.ToLower(fs[1]) == "as" {
 			al = strings.ToLower(fs[2])

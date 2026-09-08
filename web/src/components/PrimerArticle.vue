@@ -4,7 +4,7 @@ import Infographic from "./Infographic.vue";
 
 const props = defineProps({
   primer: { type: Object, required: true },
-  /** all | head (term+about) | rest (purpose→practice) */
+  /** all | head (term+explanation+examples) | rest (purpose→case) */
   part: { type: String, default: "all" },
 });
 
@@ -15,29 +15,29 @@ function hasText(block) {
   if (block.steps?.length) return true;
   if (block.items?.length || block.cases?.length) return true;
   if (block.infographic) return true;
+  if (block.name) return true;
   return false;
 }
 
 const beats = computed(() => {
   const p = props.primer || {};
   const list = [];
-  if (termParas.value.length) list.push({ id: "primer-term", n: "01", label: "термин" });
-  if (aboutParas.value.length || aboutFig.value) list.push({ id: "primer-about", n: "02", label: "о чём это" });
-  if (hasText(p.purpose)) list.push({ id: "primer-purpose", n: "03", label: "для чего" });
-  if (hasText(p.how)) list.push({ id: "primer-how", n: "04", label: "как" });
-  if (hasText(p.example)) list.push({ id: "primer-example", n: "05", label: "пример" });
-  if (hasText(p.mistakes)) list.push({ id: "primer-mistakes", n: "06", label: "ошибки" });
-  if (hasText(p.practice)) list.push({ id: "primer-practice", n: "07", label: "закрепление" });
+  if (hasTerm.value) list.push({ id: "primer-term", n: "01", label: "термин" });
+  if (hasAbout.value) list.push({ id: "primer-about", n: "02", label: "объяснение" });
+  if (hasText(p.example)) list.push({ id: "primer-example", n: "03", label: "примеры" });
+  if (hasText(p.purpose)) list.push({ id: "primer-purpose", n: "04", label: "для чего" });
+  if (caseItems.value.length) list.push({ id: "primer-case", n: "05", label: "кейс" });
+  if (hasText(p.practice)) list.push({ id: "primer-practice", n: "06", label: "закрепление" });
   return list;
 });
 
+const term = computed(() => props.primer?.term || {});
 const termParas = computed(() => {
   const p = props.primer || {};
   if (p.term?.paragraphs?.length) return p.term.paragraphs;
   const w = p.what?.paragraphs || [];
   return w.slice(0, 1);
 });
-
 const aboutParas = computed(() => {
   const p = props.primer || {};
   if (p.about?.paragraphs?.length) return p.about.paragraphs;
@@ -45,18 +45,27 @@ const aboutParas = computed(() => {
   const w = p.what?.paragraphs || [];
   return w.slice(1);
 });
-
 const aboutFig = computed(() => props.primer?.about?.infographic || props.primer?.what?.infographic || null);
-const termTitle = computed(() => props.primer?.term?.title || "Термин");
-const aboutTitle = computed(() => props.primer?.about?.title || "О чём это");
+const aboutSteps = computed(() => props.primer?.about?.steps || props.primer?.how?.steps || []);
+const aboutIntro = computed(() => props.primer?.about?.intro || props.primer?.how?.intro || "");
 
+const hasTerm = computed(() => term.value.name || termParas.value.length);
+const hasAbout = computed(
+  () => aboutParas.value.length || aboutFig.value || aboutSteps.value.length || aboutIntro.value,
+);
+
+const caseItems = computed(() => {
+  const p = props.primer || {};
+  if (p.cases?.items?.length) return p.cases.items;
+  return p.mistakes?.cases || [];
+});
 const showHead = computed(() => props.part === "all" || props.part === "head");
 const showRest = computed(() => props.part === "all" || props.part === "rest");
 const showRail = computed(() => props.part === "all" || props.part === "head");
 </script>
 
 <template>
-  <article v-if="primer" class="primer-article">
+  <article v-if="primer" class="primer-article" :class="{ 'has-rail': showRail && beats.length }">
     <nav v-if="showRail && beats.length" class="article-rail" aria-label="Содержание статьи">
       <a v-for="b in beats" :key="b.id" :href="'#' + b.id">
         <span class="block">{{ b.n }}</span>
@@ -64,39 +73,35 @@ const showRail = computed(() => props.part === "all" || props.part === "head");
       </a>
     </nav>
     <div class="primer-col">
-      <section v-if="showHead && termParas.length" id="primer-term" class="primer-block">
+      <section v-if="showHead && hasTerm" id="primer-term" class="primer-block primer-term">
         <span class="stamp">термин</span>
-        <h2>{{ termTitle }}</h2>
+        <div class="term-pair">
+          <div>
+            <p v-if="term.en" class="term-en">{{ term.en }}</p>
+            <h2 class="term-word">{{ term.name || term.title || "Термин" }}</h2>
+          </div>
+          <div v-if="term.name2">
+            <p v-if="term.en2" class="term-en">{{ term.en2 }}</p>
+            <h2 class="term-word">{{ term.name2 }}</h2>
+          </div>
+        </div>
         <p v-for="(p, i) in termParas" :key="'t' + i">{{ p }}</p>
       </section>
 
-      <section v-if="showHead && (aboutParas.length || aboutFig)" id="primer-about" class="primer-block">
-        <span class="stamp">о чём это</span>
-        <h2>{{ aboutTitle }}</h2>
+      <section v-if="showHead && hasAbout" id="primer-about" class="primer-block">
+        <span class="stamp">объяснение</span>
+        <h2>{{ primer.about?.title || "Объяснение" }}</h2>
         <p v-for="(p, i) in aboutParas" :key="'a' + i">{{ p }}</p>
         <Infographic v-if="aboutFig" :fig="aboutFig" />
-      </section>
-
-      <section v-if="showRest && primer.purpose" id="primer-purpose" class="primer-block">
-        <span class="stamp">для чего</span>
-        <h2>{{ primer.purpose.title }}</h2>
-        <p v-for="(p, i) in primer.purpose.paragraphs" :key="'p' + i">{{ p }}</p>
-        <Infographic v-if="primer.purpose.infographic" :fig="primer.purpose.infographic" />
-      </section>
-
-      <section v-if="showRest && primer.how" id="primer-how" class="primer-block">
-        <span class="stamp">как</span>
-        <h2>{{ primer.how.title }}</h2>
-        <p v-if="primer.how.intro">{{ primer.how.intro }}</p>
-        <ol v-if="primer.how.steps?.length">
-          <li v-for="(s, i) in primer.how.steps" :key="'h' + i">{{ s }}</li>
+        <p v-if="aboutIntro">{{ aboutIntro }}</p>
+        <ol v-if="aboutSteps.length">
+          <li v-for="(s, i) in aboutSteps" :key="'h' + i">{{ s }}</li>
         </ol>
-        <Infographic v-if="primer.how.infographic" :fig="primer.how.infographic" />
       </section>
 
-      <section v-if="showRest && primer.example" id="primer-example" class="primer-block">
-        <span class="stamp">пример</span>
-        <h2>{{ primer.example.title }}</h2>
+      <section v-if="showHead && primer.example" id="primer-example" class="primer-block">
+        <span class="stamp">примеры</span>
+        <h2>{{ primer.example.title || "Примеры" }}</h2>
         <h3 v-if="primer.example.heading">{{ primer.example.heading }}</h3>
         <p
           v-for="(p, i) in primer.example.paragraphs || (primer.example.body ? [primer.example.body] : [])"
@@ -106,18 +111,26 @@ const showRail = computed(() => props.part === "all" || props.part === "head");
         </p>
         <Infographic v-if="primer.example.infographic" :fig="primer.example.infographic" />
         <p v-if="primer.example.note" class="primer-note">{{ primer.example.note }}</p>
+        <template v-if="primer.mistakes?.items?.length">
+          <h3>Так нельзя</h3>
+          <div v-for="(m, i) in primer.mistakes.items" :key="'m' + i" class="primer-item">
+            <h3>{{ m.title }}</h3>
+            <p>{{ m.body }}</p>
+          </div>
+        </template>
       </section>
 
-      <section v-if="showRest && primer.mistakes" id="primer-mistakes" class="primer-block">
-        <span class="stamp stamp-case">ошибки</span>
-        <h2>{{ primer.mistakes.title }}</h2>
-        <p v-if="primer.mistakes.intro">{{ primer.mistakes.intro }}</p>
-        <div v-for="(m, i) in primer.mistakes.items || []" :key="'m' + i" class="primer-item">
-          <h3>{{ m.title }}</h3>
-          <p>{{ m.body }}</p>
-        </div>
-        <div v-for="(c, i) in primer.mistakes.cases || []" :key="'c' + i" class="primer-case">
-          <span class="stamp stamp-case">кейс</span>
+      <section v-if="showRest && primer.purpose" id="primer-purpose" class="primer-block">
+        <span class="stamp">для чего</span>
+        <h2>{{ primer.purpose.title }}</h2>
+        <p v-for="(p, i) in primer.purpose.paragraphs" :key="'p' + i">{{ p }}</p>
+        <Infographic v-if="primer.purpose.infographic" :fig="primer.purpose.infographic" />
+      </section>
+
+      <section v-if="showRest && caseItems.length" id="primer-case" class="primer-block">
+        <span class="stamp stamp-case">кейс</span>
+        <h2>{{ primer.cases?.title || "Кейс" }}</h2>
+        <div v-for="(c, i) in caseItems" :key="'c' + i" class="primer-case">
           <h3>{{ c.title }}</h3>
           <p><strong>Что сломалось.</strong> {{ c.broke }}</p>
           <p><strong>Почему.</strong> {{ c.why }}</p>

@@ -5,8 +5,8 @@ const holdFig = {
   kind: "hold",
   ledger: 100000,
   holdAmt: 20000,
-  ledgerLabel: "сумма ног журнала",
-  holdLabel: "auth на кассе, проводок нет",
+  ledgerLabel: "остаток в журнале",
+  holdLabel: "резерв кассы, проводки нет",
   availNote: "то, что клиент может потратить",
 };
 </script>
@@ -14,7 +14,7 @@ const holdFig = {
 <template>
   <div class="hero-product">
     <Infographic
-      kicker="пет"
+      kicker="холд"
       plate="01"
       title="Кошелёк после холда"
       :fig="holdFig"

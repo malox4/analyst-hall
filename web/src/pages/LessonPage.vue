@@ -121,12 +121,12 @@ async function saveBrief() {
 
     <PrimerArticle v-if="primer" class="mt-10" :primer="primer" part="rest">
       <template #drill>
-        <p class="text-sm text-mute">Стол выше двигает доску. Ошибка хода показывает почему. Дальше не запирается.</p>
+        <p class="text-sm text-mute">Упражнение на доске выше. Неверный ход показывает причину. Переход дальше не блокируется.</p>
       </template>
     </PrimerArticle>
 
     <div class="sticky bottom-20 z-10 mt-10 flex items-center justify-between gap-3 rounded-2xl bg-ink p-4 text-white md:bottom-6">
-      <p class="text-sm text-white/60">Стол двигает доску. Дальше открыто всегда.</p>
+      <p class="text-sm text-white/60">Упражнение на доске. К следующему уроку можно перейти сразу.</p>
       <button type="button" class="btn btn-accent btn-sm" @click="goNext">
         {{ lesson.next ? "Следующий контур" : "К уровню" }}
       </button>

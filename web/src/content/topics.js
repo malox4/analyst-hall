@@ -1,10 +1,11 @@
 /** Articles: core rewritten as teaching; catalog and gap keep ids. */
+import { stampTerms } from "./pedagogy.js";
 import { CORE_TOPICS } from "./topicsCore.js";
 import { EXTRA_TOPICS } from "./topicsCatalog.js";
 import { GAP_TOPICS_A } from "./topicsGap.js";
 import { GAP_TOPICS_B } from "./topicsGapMore.js";
 
-export const TOPICS = [...CORE_TOPICS, ...EXTRA_TOPICS, ...GAP_TOPICS_A, ...GAP_TOPICS_B];
+export const TOPICS = [...CORE_TOPICS, ...EXTRA_TOPICS, ...GAP_TOPICS_A, ...GAP_TOPICS_B].map(stampTerms);
 
 export const TOPIC_BY_ID = Object.fromEntries(TOPICS.map((t) => [t.id, t]));
 
@@ -13,7 +14,7 @@ export function topicById(id) {
 }
 
 export const LESSON_TOPIC = {
-  "intern-1-profession": "car-ethics",
+  "intern-1-profession": "car-analyst",
   "intern-1-sdlc": "req-levels",
   "intern-1-team": "req-stakeholders",
   "intern-1-questions": "car-intro",

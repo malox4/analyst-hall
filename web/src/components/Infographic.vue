@@ -261,14 +261,14 @@ function seqArrow(st, i) {
         <article class="ig-plate">
           <span class="stamp">книга</span>
           <h4>ledger</h4>
-          <p class="ig-sub">{{ data.ledgerLabel || "сумма ног журнала" }}</p>
+          <p class="ig-sub">{{ data.ledgerLabel || "остаток в журнале" }}</p>
           <p class="ig-hold-n">{{ money(data.ledger) }}</p>
         </article>
         <span class="ig-hold-op" aria-hidden="true">−</span>
         <article class="ig-plate ig-tone-accent">
           <span class="stamp">холд</span>
           <h4>hold OPEN</h4>
-          <p class="ig-sub">{{ data.holdLabel || "отложено, проводок нет" }}</p>
+          <p class="ig-sub">{{ data.holdLabel || "резерв, проводок нет" }}</p>
           <p class="ig-hold-n">{{ money(data.holdAmt) }}</p>
         </article>
         <span class="ig-hold-op" aria-hidden="true">=</span>

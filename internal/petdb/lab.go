@@ -198,6 +198,7 @@ func (l *Lab) Schema(intern bool) []map[string]any {
 		{"name": "customers", "cols": "id, name, segment, city, opened_at"},
 		{"name": "accounts", "cols": "id, iban, type, currency, ledger, hold, available"},
 		{"name": "wallets", "cols": "id, customer_id, ledger, hold, available"},
+		{"name": "intern_wallets", "cols": "id, name, currency, status, available", "note": "Урезанная витрина Intern-задач. Есть и в PRO."},
 		{"name": "holds", "cols": "id, account_id, amount, status, created_at"},
 		{"name": "journals", "cols": "id, kind, debit, credit, balanced, at, four_eyes, night_shift"},
 		{"name": "ledger_legs", "cols": "id, journal_id, account_id, dc, amount, currency, kind, at"},
@@ -216,18 +217,21 @@ var denyStmt = regexp.MustCompile(`(?i)\b(drop|truncate|alter|attach|detach|vacu
 var internTables = regexp.MustCompile(`(?i)(^|[^a-z_])(customers|accounts|wallets|holds|journals|ledger_legs|transfers|payments|cards|card_auths|incoming|outgoing|suspense|fx_deals|merchants|tickets|audit_log|wallet_ui|kyc)($|[^a-z_])`)
 
 func classifySQL(sqlText string, intern, allowDML bool) (string, error) {
-	s := stripSQLComments(sqlText)
+	raw := strings.TrimSpace(stripSQLComments(sqlText))
+	if raw == "" {
+		return "", fmt.Errorf("Пустой запрос.")
+	}
+	if denyStmt.MatchString(raw) {
+		return "denied", fmt.Errorf("DROP / TRUNCATE / ALTER и служебные команды в учебном ядре запрещены.")
+	}
+	if strings.Contains(raw, ";") && strings.TrimSpace(strings.SplitN(raw, ";", 2)[1]) != "" {
+		return "denied", fmt.Errorf("Один statement за раз.")
+	}
+	s := strings.TrimRight(raw, "; \t\n\r")
 	s = strings.TrimSpace(s)
 	if s == "" {
 		return "", fmt.Errorf("Пустой запрос.")
 	}
-	if denyStmt.MatchString(s) {
-		return "denied", fmt.Errorf("DROP / TRUNCATE / ALTER и служебные команды в учебном ядре запрещены.")
-	}
-	if strings.Contains(s, ";") && strings.TrimSpace(strings.SplitN(s, ";", 2)[1]) != "" {
-		return "denied", fmt.Errorf("Один statement за раз.")
-	}
-	s = strings.TrimSuffix(strings.TrimSpace(s), ";")
 	first := strings.ToLower(strings.Fields(s)[0])
 	switch first {
 	case "select", "with":

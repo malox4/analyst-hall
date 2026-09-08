@@ -145,6 +145,7 @@ func boardMeta(boards []map[string]any) []map[string]any {
 	for _, b := range boards {
 		out = append(out, map[string]any{
 			"id": b["id"], "title": b["title"], "teaser": b["teaser"],
+			"term": b["term"], "learn": b["learn"],
 			"grade": b["grade"], "plan": b["plan"], "minutes": b["minutes"],
 		})
 	}

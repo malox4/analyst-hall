@@ -22,12 +22,12 @@ const rows = [
 <template>
   <section id="compare" class="scroll-mt-24">
     <p id="pay" class="kicker scroll-mt-24">зачем платить</p>
-    <h2 class="font-display mt-3 text-3xl md:text-5xl">Бесплатно против PRO</h2>
-    <span class="section-rule" aria-hidden="true" />
-    <p class="mt-3 max-w-2xl text-[16px] leading-7 text-mute">
-      Intern не урезают. PRO — когда нужно писать в учебный банк, открыть junior+ и полный SQL.
-      Мост: 3 дня как правый столбец после регистрации.
-    </p>
+        <h2 class="font-display mt-3 text-3xl md:text-5xl">Intern смотрит. PRO пишет.</h2>
+        <span class="section-rule" aria-hidden="true" />
+        <p class="mt-3 max-w-2xl text-[16px] leading-7 text-mute">
+          Бесплатно не урезают. Платите, когда сами вызываете POST в учебный банк, открываете junior+ и полный SQL.
+          Мост: 3 дня правого столбца после регистрации.
+        </p>
 
     <div class="mt-8 grid gap-6 lg:grid-cols-2">
       <article class="card p-6 md:p-8">
@@ -35,7 +35,7 @@ const rows = [
         <h3 class="font-display mt-2 text-3xl">Intern</h3>
         <ul class="mt-4 space-y-2 text-[15px] leading-7">
           <li>Уроки Intern, intern-лабы, intern-собес.</li>
-          <li>Пет на чтение: кошельки, холды, журнал.</li>
+          <li>Чтение учебного банка: кошельки, холды, журнал.</li>
           <li>SQL только по витринам intern_*.</li>
           <li>Срок не кончается. Junior+ закрыт страницей PRO.</li>
         </ul>

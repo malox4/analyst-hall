@@ -24,14 +24,14 @@ export function drillKind(lab) {
   const k = lab?.blocks?.[0]?.kind;
   const id = lab?.id || "";
   const teaser = lab?.teaser || "";
-  if (id.includes("openapi") || k === "yaml") return "OpenAPI YAML";
+  if (id.includes("openapi") || k === "yaml") return "контракт YAML";
   if (k === "sql" || id.includes("sql") || id.includes("db-window") || id.includes("db-cte")) return "SQL";
-  if (id.includes("raci") || k === "match") return "таблица";
-  if (teaser.includes("/pet") || id.includes("postman") || id.includes("ledger-deep")) return "пет";
+  if (id.includes("raci") || k === "match") return "соответствие";
+  if (teaser.includes("/pet") || id.includes("postman") || id.includes("ledger-deep")) return "учебный банк";
   if (k === "sort") return "стол";
   if (k === "spot") return "тикет";
-  if (k === "scene" || k === "case") return "чат";
-  if (k === "order") return "порядок";
+  if (k === "scene" || k === "case") return "сценарий";
+  if (k === "order") return "порядок шагов";
   return "стол";
 }
 
@@ -217,19 +217,19 @@ export const DRILLS = [
   },
   {
     id: "p2p",
-    title: "P2P дважды без ключа",
-    teaser: "Анна → Борис 5 000. Повторите без Idempotency-Key — учебный баг.",
+    title: "P2P: перевод и идемпотентность",
+    teaser: "Девять кейсов в учебном банке: baseline, ключ, повтор, дубль без ключа, контракт, 409. Метод, путь и JSON на экране.",
     grade: "intern",
     write: true,
     explain:
-      "P2P — перевод внутри банка. В журнале: DR Анна, CR Борис, один journalId. Без ключа идемпотентности повтор создаёт вторую проводку — так задумано в учебном банке.",
+      "P2P — внутренний перевод. В журнале: дебет отправителя, кредит получателя, один journalId. Без Idempotency-Key повтор создаёт вторую проводку — учебный дефект контракта.",
     board: {
       kind: "taccount",
       title: "P2P Анна → Борис",
       caption: "Пассив: отдала — дебет, получил — кредит.",
       debit: [{ id: "dr", text: "DR Анна 5 000", ok: true }],
       credit: [{ id: "cr", text: "CR Борис 5 000" }],
-      hole: "Второй POST без ключа — вторая пара ног. Это баг контракта, не «обновите баланс».",
+      hole: "Второй POST без ключа — вторая пара проводок. Это дефект контракта, не «обновите баланс».",
     },
     read: [{ method: "GET", path: "/api/v1/wallets", label: "Кошельки" }],
     writes: [
@@ -315,8 +315,8 @@ export const QUESTS = [
   {
     id: "q-wallet",
     gradeId: "intern",
-    title: "Смена: двойной перевод",
-    teaser: "Клиент орёт. PO просит «накинуть». Вы на контуре кошелька.",
+    title: "Двойное списание P2P",
+    teaser: "Клиент видит два перевода по 5 000. PO предлагает поправить available вручную. Что сделает аналитик?",
     minutes: 8,
     board: {
       kind: "taccount",
@@ -364,8 +364,8 @@ export const QUESTS = [
   {
     id: "q-hold",
     gradeId: "intern",
-    title: "Касса сказала SUCCESS",
-    teaser: "ACS отвалился. В книге уже проводка?",
+    title: "Касса SUCCESS — есть ли проводка?",
+    teaser: "Терминал показал успех, ACS не ответил. Писать ли журнал или только холд?",
     minutes: 7,
     board: flow(
       "Касса vs журнал",
@@ -401,8 +401,8 @@ export const QUESTS = [
   {
     id: "q-iban",
     gradeId: "intern",
-    title: "Платёж на чужой IBAN",
-    teaser: "Операции просят «положите соседу, IBAN похож».",
+    title: "Входящий на неизвестный IBAN",
+    teaser: "Операции предлагают зачислить «похожему» клиенту. Куда класть деньги до идентификации?",
     minutes: 6,
     board: flow(
       "Неясные суммы",
@@ -433,8 +433,8 @@ export const QUESTS = [
   {
     id: "q-senior-recon",
     gradeId: "senior",
-    title: "Сверка эквайера, 03:10",
-    teaser: "Файл партнёра и наш реестр. MISMATCH без ручного ledger.",
+    title: "Сверка эквайера ночью",
+    teaser: "Файл партнёра и наш реестр разошлись на 12 000. MISMATCH — не повод править ledger руками.",
     minutes: 10,
     board: {
       kind: "ticket",

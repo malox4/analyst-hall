@@ -89,7 +89,6 @@ function ticketHeat(line) {
             <span class="plate-n">0{{ i + 1 }}</span>
             <h4>{{ n.label }}</h4>
             <p v-if="n.sub" class="ig-sub">{{ n.sub }}</p>
-            <p v-if="n.mood === 'hold' || light(n.id) === 'hold'" class="ig-sub">холд OPEN</p>
           </button>
         </template>
       </div>
@@ -97,8 +96,9 @@ function ticketHeat(line) {
         <span v-for="(e, i) in board.edges" :key="'e' + i" class="stamp stamp-ink">{{ e.note }}</span>
       </p>
       <p v-if="active" class="mt-4 border-t border-line pt-3 text-[15px] leading-6">
-        <span class="font-mono text-[11px] text-accent">{{ active.sub }}</span>
-        <span class="mt-1 block">{{ active.detail }}</span>
+        <span class="stamp">{{ active.label }}</span>
+        <span class="mt-2 block font-medium">{{ active.sub }}</span>
+        <span class="mt-1 block text-mute">{{ active.detail }}</span>
       </p>
     </div>
 
@@ -177,7 +177,7 @@ function ticketHeat(line) {
       :class="fx.flash === 'bad' ? 'border-bad/20 bg-bad/8 text-ink' : 'border-ok/20 bg-ok/8'"
     >
       <span class="font-mono text-[10px] uppercase tracking-[0.18em]" :class="fx.flash === 'bad' ? 'text-bad' : 'text-ok'">
-        {{ fx.flash === "bad" ? "Доска среагировала" : "Шов держится" }}
+        {{ fx.flash === "bad" ? "Ошибка хода" : "Верно" }}
       </span>
       <p class="mt-1">{{ fx.caption }}</p>
     </div>
