@@ -8,6 +8,7 @@ web/dist
 /server
 /dist
 *.exe
+*.exe~
 .env
 .env.*
 !.env.example

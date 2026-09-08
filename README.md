@@ -14,29 +14,28 @@
 | Пет | http://localhost:8080/pet · `/api/v1` |
 | Health | http://localhost:8080/api/health |
 
-После старта (если ещё нет):
-
-| Роль | Email | Пароль |
-|---|---|---|
-| Админ | `admin@malo.academy` | `ChangeMe_Admin1!` |
-| PRO | `pro@malo.academy` | `ChangeMe_Pro1!` |
-
-Смените пароли в `.env` перед продом.
+Сиды админа и PRO задаются только переменными `ADMIN_EMAIL` / `ADMIN_PASSWORD` и `PRO_EMAIL` / `PRO_PASSWORD`. На сайте и на экране входа пароли не показываем.
 
 ## Docker
 
-Нужны Docker Desktop и порт **8080**.
+Нужны Docker Desktop и свободный порт **8080**. Образ собирает Vue (включая фото лендинга) и Go. Postgres в той же compose-сети, порт 5432 наружу не открыт.
 
 ```bash
 git clone https://github.com/malox4/analyst-hall.git
 cd analyst-hall
 cp .env.example .env
-docker compose up --build
 ```
 
-Откройте [http://localhost:8080](http://localhost:8080). Остановка: `docker compose down`. `down -v` сотрёт учебный банк и Postgres.
+В `.env` поставьте свои `ADMIN_PASSWORD`, `PRO_PASSWORD`, `POSTGRES_PASSWORD`. На публичном HTTPS: `COOKIE_SECURE=1`.
 
-Образ: Node 22 собирает Vue, Go 1.23 собирает бинарь, Debian slim слушает `:8080`. Рядом Postgres 16.
+```bash
+docker compose up --build -d
+curl http://127.0.0.1:8080/api/health
+```
+
+Откройте [http://localhost:8080](http://localhost:8080). Логи: `docker compose logs -f academy`. Стоп: `docker compose down`. `down -v` сотрёт учебный банк и Postgres.
+
+Образ: Node 22 → `web/dist`, Go 1.23 → бинарь, Debian slim слушает `:8080`. `.env` в слой образа не копируется.
 
 ## Без Docker
 

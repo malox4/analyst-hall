@@ -1,10 +1,12 @@
-# Web (Vue) → Go binary serving dist + /api on 8080
+# Analyst Hall: Vue dist + Go API on 8080. Secrets stay in runtime env, not in the image.
 FROM node:22-alpine AS web
 WORKDIR /web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web ./
-RUN npm run build
+RUN npm run build \
+  && test -f dist/media/landing/hero-desk.jpg \
+  && test -f dist/media/landing/bank-pay.jpg
 
 FROM golang:1.23-bookworm AS build
 WORKDIR /src

@@ -68,9 +68,6 @@ onMounted(() => {
         <RouterLink v-if="!isReg" to="/register" class="font-medium text-accent">Нет аккаунта — регистрация</RouterLink>
         <RouterLink v-else to="/login" class="font-medium text-accent">Уже есть — вход</RouterLink>
       </p>
-      <p class="mt-6 font-mono text-[11px] leading-5 text-mute">
-        для зала: intern — регистрация · PRO — pro@malo.academy / ChangeMe_Pro1!
-      </p>
     </section>
     </div>
   </div>
