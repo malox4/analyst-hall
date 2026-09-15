@@ -12,6 +12,7 @@
 | Практика | http://localhost:8080/practice |
 | Собес | http://localhost:8080/interview · http://localhost:8080/live |
 | Пет | http://localhost:8080/pet · `/api/v1` |
+| Касса | http://localhost:8080/admin · вход хозяином (`ADMIN_EMAIL` / `ADMIN_PASSWORD`) |
 | Health | http://localhost:8080/api/health |
 
 Сиды админа и PRO задаются только переменными `ADMIN_EMAIL` / `ADMIN_PASSWORD` и `PRO_EMAIL` / `PRO_PASSWORD`. На сайте и на экране входа пароли не показываем.

@@ -25,7 +25,7 @@ const routes = [
   { path: "/interview/live", redirect: "/live" },
   { path: "/sobes", redirect: "/interview" },
   { path: "/profile", component: () => import("./pages/ProfilePage.vue") },
-  { path: "/admin", component: () => import("./pages/AdminPage.vue") },
+  { path: "/admin", component: () => import("./pages/AdminPage.vue"), meta: { admin: true } },
   { path: "/:pathMatch(.*)*", redirect: "/" },
 ];
 
@@ -42,6 +42,7 @@ router.beforeEach(async (to) => {
   if (to.path === "/" && auth.user) return "/hall";
   if (to.meta.public) return true;
   if (!auth.user) return { path: "/login", query: { next: to.fullPath } };
+  if (to.meta.admin && auth.user.role !== "admin") return "/hall";
   return true;
 });
 

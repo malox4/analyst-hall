@@ -55,6 +55,7 @@ async function out() {
       </div>
     </section>
     <div class="mt-6 flex flex-wrap gap-3">
+      <RouterLink v-if="auth.user?.role === 'admin'" to="/admin" class="btn btn-accent btn-sm">Касса</RouterLink>
       <RouterLink to="/pet?tab=sql" class="btn btn-ghost btn-sm">Пет · SQL</RouterLink>
       <RouterLink to="/pet?tab=api" class="btn btn-ghost btn-sm">Пет · API</RouterLink>
       <RouterLink to="/pet?tab=p2p" class="btn btn-ghost btn-sm">Пет · P2P</RouterLink>

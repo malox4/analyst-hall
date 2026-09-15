@@ -288,22 +288,39 @@ func (s *Server) postPractice(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 201, map[string]any{"item": rec})
 }
 
-func (s *Server) adminUsers(w http.ResponseWriter, r *http.Request) {
+func adminOK(s *Server, w http.ResponseWriter, r *http.Request) *access.User {
 	u := s.user(r)
 	if u == nil || u.Role != "admin" {
-		writeErr(w, 403, "PLAN", "Этот контур закрыт на вашем тарифе.")
+		writeErr(w, 403, "FORBIDDEN", "Касса только для хозяина зала.")
+		return nil
+	}
+	return u
+}
+
+func (s *Server) adminUsers(w http.ResponseWriter, r *http.Request) {
+	if adminOK(s, w, r) == nil {
 		return
 	}
-	items, _ := s.Store.ListUsers(r.Context())
+	rows, err := s.Store.ListUsers(r.Context())
+	if err != nil {
+		writeErr(w, 500, "STORE", err.Error())
+		return
+	}
+	items := make([]map[string]any, 0, len(rows))
+	for _, row := range rows {
+		if pub := publicFromListRow(row); pub != nil {
+			items = append(items, pub)
+		}
+	}
 	writeJSON(w, 200, map[string]any{"items": items})
 }
 
 func (s *Server) adminPatchUser(w http.ResponseWriter, r *http.Request) {
-	u := s.user(r)
-	if u == nil || u.Role != "admin" {
-		writeErr(w, 403, "PLAN", "Этот контур закрыт на вашем тарифе.")
+	actor := adminOK(s, w, r)
+	if actor == nil {
 		return
 	}
+	id := r.PathValue("id")
 	body, _ := readJSON(r)
 	var plan, role *string
 	if p := str(body["plan"]); p == "free" || p == "pro" {
@@ -312,32 +329,60 @@ func (s *Server) adminPatchUser(w http.ResponseWriter, r *http.Request) {
 	if rr := str(body["role"]); rr == "student" || rr == "admin" {
 		role = &rr
 	}
-	next, _ := s.Store.UpdateUser(r.Context(), r.PathValue("id"), plan, role)
+	if role != nil && *role == "student" && id == actor.ID {
+		writeErr(w, 400, "VALIDATION", "Нельзя снять с себя роль хозяина.")
+		return
+	}
+	next, err := s.Store.UpdateUser(r.Context(), id, plan, role)
+	if err != nil {
+		writeErr(w, 500, "STORE", err.Error())
+		return
+	}
 	if next == nil {
 		writeErr(w, 404, "NOT_FOUND", "Нет такого ученика.")
 		return
 	}
-	if plan != nil && *plan == "free" {
-		_ = s.Store.SetTrialUntil(r.Context(), next.ID, nil)
-		next, _ = s.Store.GetUserByID(r.Context(), next.ID)
+	clearTrial := plan != nil && (*plan == "free" || *plan == "pro")
+	if v, ok := body["trialDays"]; ok {
+		if days, parsed := asInt(v); parsed {
+			if days <= 0 {
+				_ = s.Store.SetTrialUntil(r.Context(), next.ID, nil)
+			} else {
+				until := time.Now().UTC().Add(time.Duration(days) * 24 * time.Hour)
+				_ = s.Store.SetTrialUntil(r.Context(), next.ID, &until)
+				if next.Plan == "pro" {
+					free := "free"
+					next, _ = s.Store.UpdateUser(r.Context(), next.ID, &free, nil)
+				}
+				clearTrial = false
+			}
+		}
 	}
-	writeJSON(w, 200, s.authBody(next))
+	if clearTrial {
+		_ = s.Store.SetTrialUntil(r.Context(), next.ID, nil)
+	}
+	next, _ = s.Store.GetUserByID(r.Context(), next.ID)
+	if next == nil {
+		writeErr(w, 404, "NOT_FOUND", "Нет такого ученика.")
+		return
+	}
+	writeJSON(w, 200, map[string]any{"user": access.PublicUser(next)})
 }
 
 func (s *Server) adminPractice(w http.ResponseWriter, r *http.Request) {
-	u := s.user(r)
-	if u == nil || u.Role != "admin" {
-		writeErr(w, 403, "PLAN", "Этот контур закрыт на вашем тарифе.")
+	if adminOK(s, w, r) == nil {
 		return
 	}
-	items, _ := s.Store.ListAllPractice(r.Context())
+	items, err := s.Store.ListAllPractice(r.Context())
+	if err != nil {
+		writeErr(w, 500, "STORE", err.Error())
+		return
+	}
 	writeJSON(w, 200, map[string]any{"items": items})
 }
 
 func (s *Server) adminReview(w http.ResponseWriter, r *http.Request) {
-	u := s.user(r)
-	if u == nil || u.Role != "admin" {
-		writeErr(w, 403, "PLAN", "Этот контур закрыт на вашем тарифе.")
+	if adminOK(s, w, r) == nil {
 		return
 	}
 	body, _ := readJSON(r)
@@ -386,10 +431,10 @@ func (s *Server) lesson(w http.ResponseWriter, r *http.Request) {
 	u := s.user(r)
 	if !access.CanGrade(u, l.GradeID) {
 		writeJSON(w, 403, map[string]any{
-			"error":   map[string]any{"code": "PLAN", "message": "Этот грейд в PRO. Intern остаётся открытым."},
-			"paywall": true,
+			"error":      map[string]any{"code": "PLAN", "message": "Этот грейд в PRO. Intern остаётся открытым."},
+			"paywall":    true,
 			"trialEnded": access.TrialUntilISO(u) != nil && !access.IsPro(u),
-			"lesson": map[string]any{"id": l.ID, "title": l.Title, "gradeId": l.GradeID},
+			"lesson":     map[string]any{"id": l.ID, "title": l.Title, "gradeId": l.GradeID},
 		})
 		return
 	}
@@ -452,6 +497,45 @@ func (s *Server) spa(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.ServeFile(w, r, filepath.Join(s.WebDir, "index.html"))
+}
+
+func publicFromListRow(row map[string]any) map[string]any {
+	id := str(row["id"])
+	if id == "" {
+		return nil
+	}
+	u := &access.User{
+		ID:        id,
+		Email:     str(row["email"]),
+		Name:      str(row["name"]),
+		Role:      str(row["role"]),
+		Plan:      str(row["plan"]),
+		CreatedAt: or(str(row["createdAt"]), str(row["created_at"])),
+	}
+	until := or(str(row["trialUntil"]), str(row["trial_until"]))
+	if until != "" {
+		if t, err := time.Parse(time.RFC3339, until); err == nil {
+			tt := t.UTC()
+			u.TrialUntil = &tt
+		}
+	}
+	return access.PublicUser(u)
+}
+
+func asInt(v any) (int, bool) {
+	switch n := v.(type) {
+	case int:
+		return n, true
+	case int64:
+		return int(n), true
+	case float64:
+		return int(n), true
+	case json.Number:
+		i, err := n.Int64()
+		return int(i), err == nil
+	default:
+		return 0, false
+	}
 }
 
 func str(v any) string {

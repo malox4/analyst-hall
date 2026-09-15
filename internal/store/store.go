@@ -36,9 +36,9 @@ type Store struct {
 }
 
 type memory struct {
-	Users    []memUser    `json:"users"`
-	Sessions []memSession `json:"sessions"`
-	Progress []memProg    `json:"progress"`
+	Users    []memUser     `json:"users"`
+	Sessions []memSession  `json:"sessions"`
+	Progress []memProg     `json:"progress"`
 	Practice []memPractice `json:"practice"`
 	Assess   []memAssess   `json:"assessments"`
 }
@@ -598,10 +598,11 @@ func (s *Store) ListAllPractice(ctx context.Context) ([]map[string]any, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	limit := 200
-	for i, p := range s.mem.Practice {
-		if i >= limit {
+	for i := len(s.mem.Practice) - 1; i >= 0; i-- {
+		if len(out) >= limit {
 			break
 		}
+		p := s.mem.Practice[i]
 		for _, u := range s.mem.Users {
 			if u.ID == p.UserID {
 				p.Email = u.Email

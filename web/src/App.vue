@@ -59,6 +59,7 @@ const publicPage = computed(() => route.meta.public && !auth.user);
       <RouterLink to="/practice" class="px-1.5 py-1">Практика</RouterLink>
       <RouterLink to="/interview" class="px-1.5 py-1">Собес</RouterLink>
       <RouterLink to="/live" class="px-1.5 py-1">Live</RouterLink>
+      <RouterLink v-if="auth.user?.role === 'admin'" to="/admin" class="px-1.5 py-1 text-accent">Касса</RouterLink>
       <RouterLink to="/profile" class="px-1.5 py-1">Я</RouterLink>
     </nav>
   </div>

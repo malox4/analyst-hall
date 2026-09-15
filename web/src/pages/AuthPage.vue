@@ -23,7 +23,7 @@ async function go() {
 }
 
 onMounted(() => {
-  if (auth.user) router.replace("/hall");
+  if (auth.user) router.replace(route.query.next || "/hall");
 });
 </script>
 
