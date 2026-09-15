@@ -31,7 +31,7 @@ const publicPage = computed(() => route.meta.public && !auth.user);
           <RouterLink to="/interview" class="nav-link">Собес</RouterLink>
           <RouterLink to="/live" class="nav-link">Live собес</RouterLink>
           <RouterLink to="/pricing" class="nav-link">Сравнение</RouterLink>
-          <RouterLink v-if="auth.user?.role === 'admin'" to="/admin" class="nav-link text-accent">Касса</RouterLink>
+          <RouterLink v-if="auth.user?.role === 'admin'" to="/admin" class="nav-link text-accent">Журнал</RouterLink>
         </nav>
         <div class="ml-auto flex items-center gap-3 text-[12px]">
           <span
@@ -59,7 +59,7 @@ const publicPage = computed(() => route.meta.public && !auth.user);
       <RouterLink to="/practice" class="px-1.5 py-1">Практика</RouterLink>
       <RouterLink to="/interview" class="px-1.5 py-1">Собес</RouterLink>
       <RouterLink to="/live" class="px-1.5 py-1">Live</RouterLink>
-      <RouterLink v-if="auth.user?.role === 'admin'" to="/admin" class="px-1.5 py-1 text-accent">Касса</RouterLink>
+      <RouterLink v-if="auth.user?.role === 'admin'" to="/admin" class="px-1.5 py-1 text-accent">Журнал</RouterLink>
       <RouterLink to="/profile" class="px-1.5 py-1">Я</RouterLink>
     </nav>
   </div>

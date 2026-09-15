@@ -1392,6 +1392,66 @@ button.ig-plate {
   box-shadow: 0 0 0 1px rgba(155, 61, 56, 0.5) inset;
 }
 
+.desk-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 3px solid #16181f;
+}
+
+.desk-item {
+  border-bottom: 1px solid rgba(22, 24, 31, 0.12);
+}
+
+.desk-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.15rem 0;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.desk-head:hover .font-display {
+  color: #1e4a9a;
+}
+
+.desk-pct {
+  width: 9.5rem;
+  flex-shrink: 0;
+}
+
+.desk-meter {
+  display: block;
+  height: 3px;
+  margin-top: 0.35rem;
+  background: rgba(22, 24, 31, 0.12);
+}
+
+.desk-meter > i {
+  display: block;
+  height: 100%;
+  background: #1e4a9a;
+}
+
+.desk-body {
+  padding: 0 0 1.4rem 2.4rem;
+}
+
+@media (max-width: 700px) {
+  .desk-pct {
+    width: 100%;
+  }
+  .desk-body {
+    padding-left: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

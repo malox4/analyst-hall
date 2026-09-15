@@ -57,6 +57,31 @@ func TestAdminGrantAccess(t *testing.T) {
 		t.Fatalf("want 2 users, got %d", len(listed.Items))
 	}
 
+	_ = st.PutProgress(context.Background(), student.ID, []byte(`{"lessons":{"intern-1-profession":{"done":true,"at":1700000000000}},"interview":{"hold":{"at":1}}}`))
+	_ = st.TouchPresence(context.Background(), student.ID, "/lesson/intern-1-profession", "")
+	list2 := httptest.NewRequest(http.MethodGet, "/api/admin/users", nil)
+	list2.AddCookie(cookie)
+	lr2 := httptest.NewRecorder()
+	h.ServeHTTP(lr2, list2)
+	if err := json.Unmarshal(lr2.Body.Bytes(), &listed); err != nil {
+		t.Fatal(err)
+	}
+	var anya map[string]any
+	for _, it := range listed.Items {
+		if it["email"] == "a@b.co" {
+			anya = it
+		}
+	}
+	if anya == nil {
+		t.Fatal("missing student in desk")
+	}
+	if n, _ := anya["lessonsDone"].(float64); n < 1 {
+		t.Fatalf("progress %+v", anya)
+	}
+	if str, _ := anya["herePath"].(string); str != "/lesson/intern-1-profession" {
+		t.Fatalf("here %+v", anya)
+	}
+
 	patch := httptest.NewRequest(http.MethodPatch, "/api/admin/users/"+student.ID, bytes.NewBufferString(`{"trialDays":3}`))
 	patch.Header.Set("Content-Type", "application/json")
 	patch.AddCookie(cookie)

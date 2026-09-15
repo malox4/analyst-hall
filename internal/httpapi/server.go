@@ -59,6 +59,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("PUT /api/me/progress", s.putProgress)
 	mux.HandleFunc("GET /api/progress", s.getProgress)
 	mux.HandleFunc("PUT /api/progress", s.putProgress)
+	mux.HandleFunc("POST /api/me/here", s.here)
 	mux.HandleFunc("GET /api/practice", s.listPractice)
 	mux.HandleFunc("POST /api/practice", s.postPractice)
 	mux.HandleFunc("GET /api/admin/users", s.adminUsers)
@@ -161,6 +162,7 @@ func (s *Server) setSession(w http.ResponseWriter, u *access.User) {
 	tok, _ := store.NewToken()
 	exp := time.Now().Add(30 * 24 * time.Hour)
 	_ = s.Store.CreateSession(context.Background(), u.ID, store.HashToken(tok), exp)
+	_ = s.Store.TouchPresence(context.Background(), u.ID, "", "")
 	http.SetCookie(w, s.cookie(tok, int(30*24*time.Hour.Seconds())))
 	writeJSON(w, 200, s.authBody(u))
 }
@@ -295,28 +297,10 @@ func (s *Server) postPractice(w http.ResponseWriter, r *http.Request) {
 func adminOK(s *Server, w http.ResponseWriter, r *http.Request) *access.User {
 	u := s.user(r)
 	if u == nil || u.Role != "admin" {
-		writeErr(w, 403, "FORBIDDEN", "Касса только для хозяина зала.")
+		writeErr(w, 403, "FORBIDDEN", "Журнал только для хозяина зала.")
 		return nil
 	}
 	return u
-}
-
-func (s *Server) adminUsers(w http.ResponseWriter, r *http.Request) {
-	if adminOK(s, w, r) == nil {
-		return
-	}
-	rows, err := s.Store.ListUsers(r.Context())
-	if err != nil {
-		writeErr(w, 500, "STORE", err.Error())
-		return
-	}
-	items := make([]map[string]any, 0, len(rows))
-	for _, row := range rows {
-		if pub := publicFromListRow(row); pub != nil {
-			items = append(items, pub)
-		}
-	}
-	writeJSON(w, 200, map[string]any{"items": items, "store": s.Store.Mode()})
 }
 
 func (s *Server) adminPatchUser(w http.ResponseWriter, r *http.Request) {

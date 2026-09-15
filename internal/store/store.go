@@ -58,6 +58,9 @@ type memUser struct {
 	Plan         string `json:"plan"`
 	CreatedAt    string `json:"created_at"`
 	TrialUntil   string `json:"trial_until,omitempty"`
+	LastSeen     string `json:"last_seen,omitempty"`
+	LastPath     string `json:"last_path,omitempty"`
+	LastTitle    string `json:"last_title,omitempty"`
 }
 
 type memSession struct {
@@ -382,7 +385,7 @@ func (s *Store) UpdateUser(ctx context.Context, id string, plan, role *string) (
 func (s *Store) ListUsers(ctx context.Context) ([]map[string]any, error) {
 	out := []map[string]any{}
 	if s.pool != nil {
-		rows, err := s.pool.Query(ctx, `SELECT id,email,name,role,plan,created_at,trial_until FROM users ORDER BY created_at DESC`)
+		rows, err := s.pool.Query(ctx, `SELECT id,email,name,role,plan,created_at,trial_until,last_seen,last_path,last_title FROM users ORDER BY COALESCE(last_seen, created_at) DESC`)
 		if err != nil {
 			return nil, err
 		}
@@ -390,13 +393,23 @@ func (s *Store) ListUsers(ctx context.Context) ([]map[string]any, error) {
 		for rows.Next() {
 			var id, email, name, role, plan string
 			var created time.Time
-			var trial sql.NullTime
-			if err := rows.Scan(&id, &email, &name, &role, &plan, &created, &trial); err != nil {
+			var trial, seen sql.NullTime
+			var path, title sql.NullString
+			if err := rows.Scan(&id, &email, &name, &role, &plan, &created, &trial, &seen, &path, &title); err != nil {
 				return nil, err
 			}
-			row := map[string]any{"id": id, "email": email, "name": name, "role": role, "plan": plan, "created_at": created.UTC().Format(time.RFC3339), "trial_until": nil}
+			row := map[string]any{"id": id, "email": email, "name": name, "role": role, "plan": plan, "created_at": created.UTC().Format(time.RFC3339), "trial_until": nil, "last_seen": nil, "last_path": "", "last_title": ""}
 			if trial.Valid {
 				row["trial_until"] = trial.Time.UTC().Format(time.RFC3339)
+			}
+			if seen.Valid {
+				row["last_seen"] = seen.Time.UTC().Format(time.RFC3339)
+			}
+			if path.Valid {
+				row["last_path"] = path.String
+			}
+			if title.Valid {
+				row["last_title"] = title.String
 			}
 			out = append(out, row)
 		}
@@ -406,9 +419,12 @@ func (s *Store) ListUsers(ctx context.Context) ([]map[string]any, error) {
 	defer s.mu.Unlock()
 	for i := len(s.mem.Users) - 1; i >= 0; i-- {
 		u := s.mem.Users[i]
-		row := map[string]any{"id": u.ID, "email": u.Email, "name": u.Name, "role": u.Role, "plan": u.Plan, "created_at": u.CreatedAt, "trial_until": nil}
+		row := map[string]any{"id": u.ID, "email": u.Email, "name": u.Name, "role": u.Role, "plan": u.Plan, "created_at": u.CreatedAt, "trial_until": nil, "last_seen": nil, "last_path": u.LastPath, "last_title": u.LastTitle}
 		if u.TrialUntil != "" {
 			row["trial_until"] = u.TrialUntil
+		}
+		if u.LastSeen != "" {
+			row["last_seen"] = u.LastSeen
 		}
 		out = append(out, row)
 	}
@@ -747,4 +763,128 @@ func (s *Store) PutAssessment(ctx context.Context, userID string, payload json.R
 	s.mem.Assess = append(s.mem.Assess, memAssess{UserID: userID, Payload: payload})
 	s.saveFile()
 	return nil
+}
+
+func (s *Store) TouchPresence(ctx context.Context, userID, path, title string) error {
+	now := time.Now().UTC()
+	path = strings.TrimSpace(path)
+	title = strings.TrimSpace(title)
+	if len(path) > 180 {
+		path = path[:180]
+	}
+	if len(title) > 80 {
+		title = title[:80]
+	}
+	if s.pool != nil {
+		_, err := s.pool.Exec(ctx, `UPDATE users SET last_seen=$1, last_path=CASE WHEN $2='' THEN last_path ELSE $2 END, last_title=CASE WHEN $3='' THEN last_title ELSE $3 END WHERE id=$4`, now, path, title, userID)
+		return err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	stamp := now.Format(time.RFC3339)
+	for i, u := range s.mem.Users {
+		if u.ID != userID {
+			continue
+		}
+		s.mem.Users[i].LastSeen = stamp
+		if path != "" {
+			s.mem.Users[i].LastPath = path
+			s.mem.Users[i].LastTitle = title
+		}
+		s.saveFile()
+		return nil
+	}
+	return nil
+}
+
+func (s *Store) MapProgress(ctx context.Context) (map[string]json.RawMessage, error) {
+	out := map[string]json.RawMessage{}
+	if s.pool != nil {
+		rows, err := s.pool.Query(ctx, `SELECT user_id, payload FROM progress`)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var id string
+			var payload []byte
+			if err := rows.Scan(&id, &payload); err != nil {
+				return nil, err
+			}
+			out[id] = payload
+		}
+		return out, rows.Err()
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, p := range s.mem.Progress {
+		out[p.UserID] = p.Payload
+	}
+	return out, nil
+}
+
+func (s *Store) MapAssessments(ctx context.Context) (map[string]json.RawMessage, error) {
+	out := map[string]json.RawMessage{}
+	if s.pool != nil {
+		rows, err := s.pool.Query(ctx, `SELECT user_id, payload FROM assessments`)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var id string
+			var payload []byte
+			if err := rows.Scan(&id, &payload); err != nil {
+				return nil, err
+			}
+			out[id] = payload
+		}
+		return out, rows.Err()
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, a := range s.mem.Assess {
+		out[a.UserID] = a.Payload
+	}
+	return out, nil
+}
+
+type PracStat struct {
+	Total int
+	Open  int
+}
+
+func (s *Store) PracticeCounts(ctx context.Context) (map[string]PracStat, error) {
+	out := map[string]PracStat{}
+	if s.pool != nil {
+		rows, err := s.pool.Query(ctx, `SELECT user_id, status FROM practice_submissions`)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var id, st string
+			if err := rows.Scan(&id, &st); err != nil {
+				return nil, err
+			}
+			p := out[id]
+			p.Total++
+			if st != "reviewed" {
+				p.Open++
+			}
+			out[id] = p
+		}
+		return out, rows.Err()
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, p := range s.mem.Practice {
+		st := out[p.UserID]
+		st.Total++
+		if p.Status != "reviewed" {
+			st.Open++
+		}
+		out[p.UserID] = st
+	}
+	return out, nil
 }

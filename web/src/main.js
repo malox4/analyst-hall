@@ -46,4 +46,37 @@ router.beforeEach(async (to) => {
   return true;
 });
 
+function placeTitle(to) {
+  const p = to.path;
+  if (p === "/hall") return "Зал";
+  if (p.startsWith("/lesson/")) return "";
+  if (p.startsWith("/level/")) return "Этаж";
+  if (p.startsWith("/pet")) return "Пет";
+  if (p.startsWith("/practice")) return "Практика";
+  if (p.startsWith("/interview")) return "Собес";
+  if (p.startsWith("/live")) return "Live собес";
+  if (p.startsWith("/materials")) return "Материалы";
+  if (p.startsWith("/boards")) return "Доска";
+  if (p === "/profile") return "Профиль";
+  if (p === "/admin") return "Журнал";
+  return to.name || p;
+}
+
+function pingHere() {
+  if (!auth.user) return;
+  const to = router.currentRoute.value;
+  if (to.path === "/login" || to.path === "/register") return;
+  fetch("/api/me/here", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ path: to.fullPath, title: placeTitle(to) }),
+  }).catch(() => {});
+}
+
+router.afterEach(() => {
+  pingHere();
+});
+setInterval(pingHere, 45000);
+
 app.mount("#app");
