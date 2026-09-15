@@ -38,6 +38,19 @@ curl http://127.0.0.1:8080/api/health
 
 Образ: Node 22 → `web/dist`, Go 1.23 → бинарь, Debian slim слушает `:8080`. `.env` в слой образа не копируется.
 
+## Railway
+
+Прод без Postgres пишет учётки в файл контейнера. После рестарта или деплоя регистрации исчезают, касса пустая, сессия может не держаться.
+
+1. В проекте: **New** → **Database** → **PostgreSQL**.
+2. У сервиса зала в **Variables**:
+   - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}` (имя сервиса БД подставьте своё)
+   - `COOKIE_SECURE=1`
+   - свои `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `PRO_EMAIL` / `PRO_PASSWORD`
+3. Redeploy. `/api/health` должен показать `"store": "pg"`, не `"file"`.
+
+Касса: `https://<хост>/admin`. Ученик туда не попадает — только хозяин.
+
 ## Без Docker
 
 Нужны **Go 1.23+** и **Node 22**.

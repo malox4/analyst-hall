@@ -32,7 +32,7 @@ type Server struct {
 }
 
 func New(st *store.Store, bank *ledger.Bank, webDir string, cat *content.Catalog, lab *petdb.Lab) *Server {
-	s := &Server{Store: st, Bank: bank, WebDir: webDir, Cat: cat, Lab: lab, Live: interview.NewHub(), Secure: os.Getenv("COOKIE_SECURE") == "1" || os.Getenv("NODE_ENV") == "production"}
+	s := &Server{Store: st, Bank: bank, WebDir: webDir, Cat: cat, Lab: lab, Live: interview.NewHub(), Secure: cookieSecure()}
 	s.syncLab()
 	return s
 }
@@ -134,7 +134,11 @@ func readJSON(r *http.Request) (map[string]any, error) {
 }
 
 func (s *Server) health(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, 200, map[string]any{"ok": true, "product": "analyst-hall", "version": ledger.Version, "academy": true, "store": s.Store.Mode()})
+	out := map[string]any{"ok": true, "product": "analyst-hall", "version": ledger.Version, "academy": true, "store": s.Store.Mode()}
+	if s.Store.Mode() != "pg" {
+		out["storeHint"] = "file store is ephemeral on Railway; attach Postgres and DATABASE_URL"
+	}
+	writeJSON(w, 200, out)
 }
 
 func (s *Server) user(r *http.Request) *access.User {
@@ -312,7 +316,7 @@ func (s *Server) adminUsers(w http.ResponseWriter, r *http.Request) {
 			items = append(items, pub)
 		}
 	}
-	writeJSON(w, 200, map[string]any{"items": items})
+	writeJSON(w, 200, map[string]any{"items": items, "store": s.Store.Mode()})
 }
 
 func (s *Server) adminPatchUser(w http.ResponseWriter, r *http.Request) {
@@ -536,6 +540,20 @@ func asInt(v any) (int, bool) {
 	default:
 		return 0, false
 	}
+}
+
+func cookieSecure() bool {
+	if os.Getenv("RAILWAY_ENVIRONMENT") != "" || os.Getenv("RAILWAY_PUBLIC_DOMAIN") != "" || os.Getenv("RAILWAY_PROJECT_ID") != "" {
+		return true
+	}
+	v := os.Getenv("COOKIE_SECURE")
+	if v == "1" {
+		return true
+	}
+	if v == "0" {
+		return false
+	}
+	return os.Getenv("NODE_ENV") == "production"
 }
 
 func str(v any) string {

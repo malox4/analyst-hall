@@ -40,6 +40,9 @@ func main() {
 		log.Fatal(err)
 	}
 	defer st.Close()
+	if st.Mode() != "pg" && onRailway() {
+		log.Fatal("Railway: учётки в файле контейнера пропадают при рестарте. Добавьте Postgres в проект и переменную DATABASE_URL = ${{Postgres.DATABASE_URL}} у сервиса зала.")
+	}
 	if err := seedAdmin(ctx, st); err != nil {
 		log.Fatal(err)
 	}
@@ -64,6 +67,10 @@ func main() {
 	addr := host + ":" + port
 	fmt.Printf("Analyst Hall http://%s  (web %s, store %s)\n", addr, webDir, st.Mode())
 	log.Fatal(http.ListenAndServe(addr, srv.Handler()))
+}
+
+func onRailway() bool {
+	return os.Getenv("RAILWAY_ENVIRONMENT") != "" || os.Getenv("RAILWAY_PUBLIC_DOMAIN") != "" || os.Getenv("RAILWAY_PROJECT_ID") != ""
 }
 
 func seedAdmin(ctx context.Context, st *store.Store) error {

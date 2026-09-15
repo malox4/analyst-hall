@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -85,9 +86,71 @@ type memPractice struct {
 	Author       string  `json:"author,omitempty"`
 }
 
+func ResolveDatabaseURL() string {
+	keys := []string{
+		"DATABASE_PRIVATE_URL",
+		"DATABASE_URL",
+		"DATABASE_PUBLIC_URL",
+		"POSTGRES_PRIVATE_URL",
+		"POSTGRES_URL",
+		"POSTGRES_PUBLIC_URL",
+	}
+	for _, k := range keys {
+		if v := strings.TrimSpace(os.Getenv(k)); v != "" {
+			return normalizePostgresURL(v)
+		}
+	}
+	host := strings.TrimSpace(os.Getenv("PGHOST"))
+	if host == "" {
+		return ""
+	}
+	user := orEnv("PGUSER", "postgres")
+	pass := os.Getenv("PGPASSWORD")
+	port := orEnv("PGPORT", "5432")
+	db := orEnv("PGDATABASE", "railway")
+	u := &url.URL{
+		Scheme: "postgres",
+		Host:   host + ":" + port,
+		Path:   "/" + db,
+	}
+	if pass != "" {
+		u.User = url.UserPassword(user, pass)
+	} else {
+		u.User = url.User(user)
+	}
+	return normalizePostgresURL(u.String())
+}
+
+func orEnv(key, fallback string) string {
+	if v := strings.TrimSpace(os.Getenv(key)); v != "" {
+		return v
+	}
+	return fallback
+}
+
+func normalizePostgresURL(raw string) string {
+	if raw == "" || strings.Contains(raw, "sslmode=") {
+		return raw
+	}
+	sep := "?"
+	if strings.Contains(raw, "?") {
+		sep = "&"
+	}
+	internal := strings.Contains(raw, "railway.internal") || strings.Contains(raw, "localhost") || strings.Contains(raw, "127.0.0.1")
+	if internal {
+		return raw + sep + "sslmode=disable"
+	}
+	return raw + sep + "sslmode=require"
+}
+
 func Open(ctx context.Context, databaseURL, dataDir string) (*Store, error) {
 	_ = os.MkdirAll(dataDir, 0o755)
 	s := &Store{file: filepath.Join(dataDir, "academy-users.json")}
+	if databaseURL == "" {
+		databaseURL = ResolveDatabaseURL()
+	} else {
+		databaseURL = normalizePostgresURL(databaseURL)
+	}
 	if databaseURL != "" {
 		pool, err := pgxpool.New(ctx, databaseURL)
 		if err != nil {
@@ -134,7 +197,9 @@ func (s *Store) loadFile() {
 func (s *Store) saveFile() {
 	_ = os.MkdirAll(filepath.Dir(s.file), 0o755)
 	b, _ := json.MarshalIndent(s.mem, "", "  ")
-	_ = os.WriteFile(s.file, b, 0o644)
+	if err := os.WriteFile(s.file, b, 0o644); err != nil {
+		fmt.Printf("store: cannot write %s: %v\n", s.file, err)
+	}
 }
 
 func HashPassword(pw string) (string, error) {

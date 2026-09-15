@@ -8,6 +8,7 @@ const tab = ref("users");
 const q = ref("");
 const err = ref("");
 const busy = ref("");
+const storeMode = ref("");
 const users = ref([]);
 const practice = ref([]);
 const notes = reactive({});
@@ -73,6 +74,7 @@ async function loadUsers() {
     return;
   }
   users.value = data.items || [];
+  storeMode.value = data.store || "";
 }
 
 async function loadPractice() {
@@ -182,6 +184,9 @@ onMounted(load);
     </label>
 
     <p v-if="err" class="mt-4 text-sm text-bad">{{ err }}</p>
+    <p v-if="storeMode === 'file'" class="mt-4 max-w-2xl text-sm text-bad">
+      Сейчас учётки в файле контейнера. На Railway они пропадают при рестарте. Подключите Postgres и DATABASE_URL — иначе касса пустая после каждого деплоя.
+    </p>
 
     <ul v-if="tab === 'users'" class="mt-8 space-y-4">
       <li v-for="u in filtered" :key="u.id" class="card px-5 py-5">
