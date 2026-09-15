@@ -139,7 +139,7 @@ onMounted(load);
 <template>
   <div>
     <p class="kicker">журнал</p>
-    <h1 class="font-display mt-3 text-4xl leading-[0.95] md:text-6xl">Кто в зале</h1>
+    <h1 class="font-display mt-3 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">Кто в зале</h1>
     <span class="section-rule" aria-hidden="true" />
     <p class="mt-4 max-w-2xl text-[17px] leading-7 text-mute">
       Где человек сейчас, какой этаж, сколько уроков закрыл, живой ли собес. Доступ — внутри карточки, не вместо следа.

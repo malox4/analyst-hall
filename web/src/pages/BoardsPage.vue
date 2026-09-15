@@ -43,7 +43,7 @@ watch(id, (v) => {
 <template>
   <div>
     <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-mute">Схемы операций</p>
-    <h1 class="font-display mt-2 text-4xl md:text-6xl">Доски</h1>
+    <h1 class="font-display mt-2 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">Доски</h1>
     <p class="mt-4 max-w-2xl text-[17px] leading-7 text-mute">
       Короткие схемы платёжного контура: hold, журнал, IBAN, сверка, учебный API.
       Здесь не полная статья — один термин, шаги операции и типичная ошибка аналитика.

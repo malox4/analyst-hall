@@ -33,8 +33,8 @@ async function out() {
 <template>
   <div>
     <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-mute">Analyst Hall · профиль</p>
-    <h1 class="font-display mt-2 text-5xl">{{ auth.user?.name }}</h1>
-    <p class="mt-3 text-[17px] leading-7 text-mute">{{ auth.user?.email }} · {{ status }}</p>
+    <h1 class="font-display mt-2 break-words text-3xl sm:text-5xl">{{ auth.user?.name }}</h1>
+    <p class="mt-3 break-words text-[17px] leading-7 text-mute">{{ auth.user?.email }} · {{ status }}</p>
     <section v-if="assessment" class="card mt-8 rounded-[28px] p-5">
       <p class="font-mono text-[11px] uppercase tracking-widest text-accent">Собес · уровень</p>
       <h2 class="font-display mt-1 text-3xl">{{ assessment.level }}</h2>
@@ -62,6 +62,8 @@ async function out() {
       <RouterLink to="/practice" class="btn btn-ghost btn-sm">Практика</RouterLink>
       <RouterLink to="/interview" class="btn btn-ghost btn-sm">Собес</RouterLink>
       <RouterLink to="/live" class="btn btn-ghost btn-sm">Live собес</RouterLink>
+      <RouterLink to="/materials" class="btn btn-ghost btn-sm">Материалы</RouterLink>
+      <RouterLink to="/boards" class="btn btn-ghost btn-sm">Доски</RouterLink>
     </div>
     <button type="button" class="btn btn-ghost btn-sm mt-8" @click="out">Выйти</button>
     <PlanCompare class="mt-14" :cta="false" />

@@ -61,6 +61,7 @@ type memUser struct {
 	LastSeen     string `json:"last_seen,omitempty"`
 	LastPath     string `json:"last_path,omitempty"`
 	LastTitle    string `json:"last_title,omitempty"`
+	TelegramID   int64  `json:"telegram_id,omitempty"`
 }
 
 type memSession struct {
@@ -270,6 +271,44 @@ func (s *Store) GetUserByID(ctx context.Context, id string) (*access.User, error
 		}
 	}
 	return nil, nil
+}
+
+func (s *Store) GetUserByTelegramID(ctx context.Context, tgID int64) (*access.User, error) {
+	if tgID == 0 {
+		return nil, nil
+	}
+	if s.pool != nil {
+		row := s.pool.QueryRow(ctx, `SELECT id, email, name, password_hash, role, plan, created_at, trial_until FROM users WHERE telegram_id=$1`, tgID)
+		return scanUser(row)
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, u := range s.mem.Users {
+		if u.TelegramID == tgID {
+			return toUser(u), nil
+		}
+	}
+	return nil, nil
+}
+
+func (s *Store) BindTelegram(ctx context.Context, userID string, tgID int64) error {
+	if tgID == 0 {
+		return nil
+	}
+	if s.pool != nil {
+		_, err := s.pool.Exec(ctx, `UPDATE users SET telegram_id=$1 WHERE id=$2`, tgID, userID)
+		return err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for i, u := range s.mem.Users {
+		if u.ID == userID {
+			s.mem.Users[i].TelegramID = tgID
+			s.saveFile()
+			return nil
+		}
+	}
+	return nil
 }
 
 type scanR interface {

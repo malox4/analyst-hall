@@ -102,7 +102,7 @@ const seniorCount = INTERVIEW.filter((i) => i.grade === "senior").length;
 <template>
   <div>
     <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-mute">Собес · BA / SA</p>
-    <h1 class="font-display mt-2 text-4xl md:text-6xl">Собеседование</h1>
+    <h1 class="font-display mt-2 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">Собеседование</h1>
     <p class="mt-3 max-w-2xl text-[17px] leading-7 text-mute">
       Вопрос со стола → что скажете → доска или тикет реагирует → почему. Не тест с галочкой.
       Intern ({{ internCount }}) открыт. Расширенный банк ({{ seniorCount }}) — в PRO и в триале.

@@ -34,7 +34,7 @@ const siblings = computed(() => TOPICS.filter((t) => t.trackId === topic.value?.
           <span v-if="topic.grade === 'intern'" class="stamp stamp-ok">открыто</span>
           <span v-else class="stamp stamp-ink">урок · PRO</span>
         </div>
-        <h1 class="font-display mt-3 text-4xl leading-[0.95] md:text-6xl">{{ topic.title }}</h1>
+        <h1 class="font-display mt-3 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">{{ topic.title }}</h1>
         <span class="section-rule" aria-hidden="true" />
         <p class="mt-4 text-[18px] leading-8 text-mute">{{ topic.teaser }}</p>
 

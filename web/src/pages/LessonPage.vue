@@ -92,7 +92,7 @@ async function saveBrief() {
     <p class="mt-6 font-mono text-[11px] uppercase tracking-[0.22em] text-mute">
       {{ lesson.gradeId }} · {{ lesson.minutes }} мин · контур
     </p>
-    <h1 class="font-display mt-2 text-4xl leading-[0.95] md:text-6xl">{{ lesson.title }}</h1>
+    <h1 class="font-display mt-2 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">{{ lesson.title }}</h1>
     <p class="mt-4 max-w-2xl text-[17px] leading-7 text-mute">{{ lesson.teaser }}</p>
 
     <PrimerArticle v-if="primer" class="mt-8" :primer="primer" part="head" />
@@ -125,7 +125,7 @@ async function saveBrief() {
       </template>
     </PrimerArticle>
 
-    <div class="sticky bottom-20 z-10 mt-10 flex items-center justify-between gap-3 rounded-2xl bg-ink p-4 text-white md:bottom-6">
+    <div class="lesson-next z-10 mt-10 flex flex-col gap-3 bg-ink p-4 text-white md:sticky sm:flex-row sm:items-center sm:justify-between">
       <p class="text-sm text-white/60">Упражнение на доске. К следующему уроку можно перейти сразу.</p>
       <button type="button" class="btn btn-accent btn-sm" @click="goNext">
         {{ lesson.next ? "Следующий контур" : "К уровню" }}

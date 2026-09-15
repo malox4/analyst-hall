@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
 import "./style.css";
 import { useAuth } from "./stores/auth";
+import { bootTelegram, inTelegram } from "./lib/telegram";
 
 const routes = [
   { path: "/", component: () => import("./pages/LandingPage.vue"), meta: { public: true } },
@@ -37,9 +38,11 @@ app.use(pinia);
 app.use(router);
 
 const auth = useAuth();
+bootTelegram(router);
 router.beforeEach(async (to) => {
   if (!auth.ready) await auth.hydrate();
   if (to.path === "/" && auth.user) return "/hall";
+  if (inTelegram() && to.path === "/" && !auth.user) return "/login";
   if (to.meta.public) return true;
   if (!auth.user) return { path: "/login", query: { next: to.fullPath } };
   if (to.meta.admin && auth.user.role !== "admin") return "/hall";

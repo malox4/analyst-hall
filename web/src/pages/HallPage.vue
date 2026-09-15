@@ -26,7 +26,7 @@ const firstLesson = computed(() => (internOpen.value ? `/lesson/${internOpen.val
 <template>
   <div>
     <p class="kicker">зал аналитика</p>
-    <h1 class="font-display mt-3 text-4xl leading-[0.95] md:text-6xl">Этажи intern → senior</h1>
+    <h1 class="font-display mt-3 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">Этажи intern → senior</h1>
     <span class="section-rule" aria-hidden="true" />
     <p class="mt-4 max-w-2xl text-[17px] leading-7 text-mute">
       48 уроков. На этаже — материалы пути. Intern открыт. Запись в учебный банк — PRO или триал.

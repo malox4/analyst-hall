@@ -12,7 +12,7 @@
 | Практика | http://localhost:8080/practice |
 | Собес | http://localhost:8080/interview · http://localhost:8080/live |
 | Пет | http://localhost:8080/pet · `/api/v1` |
-| Касса | http://localhost:8080/admin · вход хозяином (`ADMIN_EMAIL` / `ADMIN_PASSWORD`) |
+| Журнал | http://localhost:8080/admin · вход хозяином (`ADMIN_EMAIL` / `ADMIN_PASSWORD`) |
 | Health | http://localhost:8080/api/health |
 
 Сиды админа и PRO задаются только переменными `ADMIN_EMAIL` / `ADMIN_PASSWORD` и `PRO_EMAIL` / `PRO_PASSWORD`. На сайте и на экране входа пароли не показываем.
@@ -49,7 +49,18 @@ curl http://127.0.0.1:8080/api/health
    - свои `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `PRO_EMAIL` / `PRO_PASSWORD`
 3. Redeploy. `/api/health` должен показать `"store": "pg"`, не `"file"`.
 
-Касса: `https://<хост>/admin`. Ученик туда не попадает — только хозяин.
+Журнал: `https://<хост>/admin`. Ученик туда не попадает — только хозяин.
+
+## Telegram Mini App
+
+Зал уже жмёт в узкий экран и умеет открываться как Mini App.
+
+1. [@BotFather](https://t.me/BotFather) → бот → `/newapp`.
+2. URL: `https://analyst-hall-production.up.railway.app` (или ваш HTTPS).
+3. В Railway у сервиса зала: `TELEGRAM_BOT_TOKEN` = токен бота, `COOKIE_SECURE=1`.
+4. Меню бота / кнопка Mini App открывает зал. Внутри Telegram вход — «Войти через Telegram». Без токена остаётся email.
+
+На телефоне внизу пять пунктов: Зал, Пет, Практика, Собес, Я. Live и журнал — из профиля.
 
 ## Без Docker
 

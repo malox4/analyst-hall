@@ -33,7 +33,7 @@ const track = computed(() => trackById(active.value));
     <SiteNav v-if="!auth.user" />
     <div :class="auth.user ? '' : 'mx-auto max-w-6xl px-4 pb-20 pt-8 md:px-6'">
       <p class="kicker">самообучение</p>
-      <h1 class="font-display mt-3 text-4xl md:text-6xl">Материалы зала</h1>
+      <h1 class="font-display mt-3 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">Материалы зала</h1>
       <span class="section-rule" aria-hidden="true" />
       <p class="mt-3 max-w-2xl text-[17px] leading-7 text-mute">
         Треки: требования, REST, SQL, интеграции, архитектура, процессы, качество, платежи, софты, собес.

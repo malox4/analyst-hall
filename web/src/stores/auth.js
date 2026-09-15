@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import { inTelegram, tg } from "../lib/telegram";
 
 async function api(path, opts = {}) {
   const res = await fetch(path, {
@@ -60,6 +61,13 @@ export const useAuth = defineStore("auth", () => {
   async function hydrate() {
     const { data } = await api("/api/auth/me");
     apply(data);
+    if (!mergeUser(data) && inTelegram() && tg()?.initData) {
+      const { ok, data: next } = await api("/api/auth/telegram", {
+        method: "POST",
+        body: JSON.stringify({ initData: tg().initData }),
+      });
+      if (ok) apply(next);
+    }
     ready.value = true;
   }
 

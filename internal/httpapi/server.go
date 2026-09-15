@@ -53,6 +53,7 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("POST /api/auth/register", s.register)
 	mux.HandleFunc("POST /api/auth/login", s.login)
 	mux.HandleFunc("POST /api/auth/logout", s.logout)
+	mux.HandleFunc("POST /api/auth/telegram", s.telegramAuth)
 	mux.HandleFunc("GET /api/auth/me", s.me)
 	mux.HandleFunc("GET /api/me", s.me)
 	mux.HandleFunc("GET /api/me/progress", s.getProgress)
@@ -171,6 +172,7 @@ func (s *Server) cookie(val string, maxAge int) *http.Cookie {
 	c := &http.Cookie{Name: cookieName, Value: val, Path: "/", HttpOnly: true, SameSite: http.SameSiteLaxMode, MaxAge: maxAge}
 	if s.Secure {
 		c.Secure = true
+		c.SameSite = http.SameSiteNoneMode
 	}
 	return c
 }

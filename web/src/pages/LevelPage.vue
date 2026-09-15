@@ -51,7 +51,7 @@ const extras = computed(() => {
   <div v-else>
     <RouterLink to="/hall" class="text-sm text-mute hover:text-accent">← Зал</RouterLink>
     <p class="mt-6 font-mono text-[11px] uppercase tracking-[0.2em] text-mute">{{ found.grade.title }} · {{ found.level.hours }}</p>
-    <h1 class="font-display mt-2 text-4xl md:text-6xl">{{ found.level.title }}</h1>
+    <h1 class="font-display mt-2 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">{{ found.level.title }}</h1>
     <p class="mt-3 max-w-xl text-[17px] leading-7 text-mute">{{ found.level.subtitle }}</p>
 
     <PaywallCard v-if="locked" class="mt-8" :title="found.grade.title + ' закрыт на бесплатном тарифе'" />

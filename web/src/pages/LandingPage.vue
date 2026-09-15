@@ -54,7 +54,7 @@ const path = LANDING_PATH.map((s, i) => ({
       <section class="mt-10 grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr]">
         <div>
           <p class="kicker">зал аналитика</p>
-          <h1 class="font-display mt-4 text-4xl leading-[0.92] md:text-6xl">
+          <h1 class="font-display mt-4 text-[1.85rem] leading-[0.92] sm:text-4xl md:text-6xl">
             Intern читает банк. PRO жмёт холд.
           </h1>
           <span class="section-rule" aria-hidden="true" />

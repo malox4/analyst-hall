@@ -291,7 +291,7 @@ function pretty(v) {
 <template>
   <div>
     <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-mute">Analyst Hall · учебный банк</p>
-    <h1 class="font-display mt-2 text-4xl md:text-6xl">{{ PET_INTRO.title }}</h1>
+    <h1 class="font-display mt-2 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">{{ PET_INTRO.title }}</h1>
     <p class="mt-3 max-w-3xl text-[17px] leading-7 text-mute">{{ PET_INTRO.lead }}</p>
 
     <div v-if="tab === 'console'" class="mt-6 grid gap-3 md:grid-cols-3">

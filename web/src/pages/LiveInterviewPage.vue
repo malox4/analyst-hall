@@ -118,7 +118,7 @@ const progressLabel = computed(() => {
 
     <template v-if="view === 'catalog'">
       <p class="font-mono text-[11px] uppercase tracking-[0.22em] text-mute">Самообучение · без потока</p>
-      <h1 class="font-display mt-2 text-4xl md:text-6xl">Live собес</h1>
+      <h1 class="font-display mt-2 text-[1.85rem] leading-[0.95] sm:text-4xl md:text-6xl">Live собес</h1>
       <p class="mt-3 max-w-2xl text-[17px] leading-7 text-mute">
         Витрина блоков — карта сессии: разминка, SQL, кейс, софты. Не таймер и не замена банка вопросов.
         Сессия — дуга с холдом и журналом; уровень intern…senior пишется в профиль. Разбор одного вопроса — в пункте Собес.
